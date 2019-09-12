@@ -20,7 +20,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-cd ${ROOT_DIR}
+cd ${REPO_ROOT_DIR}
 
 # Ensure we have everything we need under vendor/
 dep ensure
@@ -29,8 +29,5 @@ rm -rf $(find vendor/ -name 'OWNERS')
 rm -rf $(find vendor/ -name '*_test.go')
 rm -rf $(find vendor/ -name 'BUILD')
 rm -rf $(find vendor/ -name 'BUILD.bazel')
-
-update_licenses third_party/VENDOR-LICENSE \
-  $(find . -name "*.go" | grep -v vendor | xargs grep "package main" | cut -d: -f1 | xargs -n1 dirname | uniq)
 
 remove_broken_symlinks ./vendor
