@@ -17,7 +17,7 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"knative.dev/pkg/apis"
+	duckv1beta1 "knative.dev/pkg/apis/duck/v1beta1"
 )
 
 // +genclient
@@ -58,15 +58,11 @@ type EventingSpec struct {
 // EventingStatus defines the observed state of Eventing
 // +k8s:openapi-gen=true
 type EventingStatus struct {
+	duckv1beta1.Status `json:",inline"`
+
 	// The version of the installed release
 	// +optional
 	Version string `json:"version,omitempty"`
-
-	// The latest available observations of a resource's current state.
-	// +optional
-	// +patchMergeKey=type
-	// +patchStrategy=merge
-	Conditions apis.Conditions `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
