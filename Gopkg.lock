@@ -24,15 +24,14 @@
   version = "v0.1.0"
 
 [[projects]]
-  digest = "1:495a073ad61550c5a1a3688a7b509a2749e79b3302a44165762352fa281b040c"
+  digest = "1:c1e8c027918e8a7cf79327f35ca2919cb997ecaa928116e3c2b470d06d0e9c12"
   name = "contrib.go.opencensus.io/exporter/stackdriver"
   packages = [
     ".",
     "monitoredresource",
   ]
   pruneopts = "NUT"
-  revision = "2fdcf7b4087e713a439fe7a489b3c316deaa97f2"
-  version = "v0.12.7"
+  revision = "bf39ce456bd8c6e2e3e37ef9775ed8b10628feca"
 
 [[projects]]
   digest = "1:d860e04468536b38ccf0b97ee8ace738dee1ac688b081e57df45a13efd16e05a"
@@ -538,6 +537,7 @@
   revision = "905c8ffbfa41b8a66dda0ba8e5d90908c3447522"
 
 [[projects]]
+  branch = "master"
   digest = "1:9b9245bd124d95af7072487cd1e5861174b859ebc31cbe9fbab3b88456701485"
   name = "google.golang.org/api"
   packages = [
@@ -552,8 +552,7 @@
     "transport/http/internal/propagation",
   ]
   pruneopts = "NUT"
-  revision = "09a9d0a772eb18da65a7917760cf4ca9ae943c83"
-  version = "v0.10.0"
+  revision = "634b73c1f50be990f1ba97c3f325fb7f88b13775"
 
 [[projects]]
   digest = "1:a955e7c44c2be14b61aa2ddda744edfdfbc6817e993703a16e303c277ba84449"
