@@ -31,59 +31,59 @@ import (
 	v1alpha1 "knative.dev/eventing-operator/pkg/client/listers/eventing/v1alpha1"
 )
 
-// KnativeEventingInformer provides access to a shared informer and lister for
-// KnativeEventings.
-type KnativeEventingInformer interface {
+// EventingInformer provides access to a shared informer and lister for
+// Eventings.
+type EventingInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.KnativeEventingLister
+	Lister() v1alpha1.EventingLister
 }
 
-type knativeEventingInformer struct {
+type eventingInformer struct {
 	factory          internalinterfaces.SharedInformerFactory
 	tweakListOptions internalinterfaces.TweakListOptionsFunc
 	namespace        string
 }
 
-// NewKnativeEventingInformer constructs a new informer for KnativeEventing type.
+// NewEventingInformer constructs a new informer for Eventing type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewKnativeEventingInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
-	return NewFilteredKnativeEventingInformer(client, namespace, resyncPeriod, indexers, nil)
+func NewEventingInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
+	return NewFilteredEventingInformer(client, namespace, resyncPeriod, indexers, nil)
 }
 
-// NewFilteredKnativeEventingInformer constructs a new informer for KnativeEventing type.
+// NewFilteredEventingInformer constructs a new informer for Eventing type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewFilteredKnativeEventingInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
+func NewFilteredEventingInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
 	return cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options v1.ListOptions) (runtime.Object, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.EventingV1alpha1().KnativeEventings(namespace).List(options)
+				return client.OperatorV1alpha1().Eventings(namespace).List(options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.EventingV1alpha1().KnativeEventings(namespace).Watch(options)
+				return client.OperatorV1alpha1().Eventings(namespace).Watch(options)
 			},
 		},
-		&eventingv1alpha1.KnativeEventing{},
+		&eventingv1alpha1.Eventing{},
 		resyncPeriod,
 		indexers,
 	)
 }
 
-func (f *knativeEventingInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-	return NewFilteredKnativeEventingInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
+func (f *eventingInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
+	return NewFilteredEventingInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
 }
 
-func (f *knativeEventingInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&eventingv1alpha1.KnativeEventing{}, f.defaultInformer)
+func (f *eventingInformer) Informer() cache.SharedIndexInformer {
+	return f.factory.InformerFor(&eventingv1alpha1.Eventing{}, f.defaultInformer)
 }
 
-func (f *knativeEventingInformer) Lister() v1alpha1.KnativeEventingLister {
-	return v1alpha1.NewKnativeEventingLister(f.Informer().GetIndexer())
+func (f *eventingInformer) Lister() v1alpha1.EventingLister {
+	return v1alpha1.NewEventingLister(f.Informer().GetIndexer())
 }

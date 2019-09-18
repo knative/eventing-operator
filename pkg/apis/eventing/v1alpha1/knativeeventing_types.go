@@ -20,8 +20,18 @@ import (
 	"knative.dev/pkg/apis"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// Eventing is the Schema for the eventings API
+// +k8s:openapi-gen=true
+type Eventing struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec   EventingSpec   `json:"spec,omitempty"`
+	Status EventingStatus `json:"status,omitempty"`
+}
 
 // Registry defines image overrides of knative images.
 // This affects both apps/v1.Deployment and caching.internal.knative.dev/v1alpha1.Image.
@@ -40,28 +50,18 @@ type Registry struct {
 	Override map[string]string `json:"override,omitempty"`
 }
 
-// IstioGatewayOverride override the knative-ingress-gateway and cluster-local-gateway
-type IstioGatewayOverride struct {
-	// A map of values to replace the "selector" values in the knative-ingress-gateway and cluster-local-gateway
-	Selector map[string]string `json:"selector,omitempty"`
+// EventingSpec defines the desired state of Eventing
+// +k8s:openapi-gen=true
+type EventingSpec struct {
 }
 
-// KnativeEventingSpec defines the desired state of KnativeEventing
+// EventingStatus defines the observed state of Eventing
 // +k8s:openapi-gen=true
-type KnativeEventingSpec struct {
-}
-
-// KnativeEventingStatus defines the observed state of KnativeEventing
-// +k8s:openapi-gen=true
-type KnativeEventingStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags:
-	// https://book.kubebuilder.io/beyond_basics/generating_crd.html
-
+type EventingStatus struct {
 	// The version of the installed release
 	// +optional
 	Version string `json:"version,omitempty"`
+
 	// The latest available observations of a resource's current state.
 	// +optional
 	// +patchMergeKey=type
@@ -69,24 +69,11 @@ type KnativeEventingStatus struct {
 	Conditions apis.Conditions `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
 }
 
-// +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// KnativeEventing is the Schema for the knativeeventings API
-// +k8s:openapi-gen=true
-type KnativeEventing struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec   KnativeEventingSpec   `json:"spec,omitempty"`
-	Status KnativeEventingStatus `json:"status,omitempty"`
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// KnativeEventingList contains a list of KnativeEventing
-type KnativeEventingList struct {
+// EventingList contains a list of Eventing
+type EventingList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []KnativeEventing `json:"items"`
+	Items           []Eventing `json:"items"`
 }

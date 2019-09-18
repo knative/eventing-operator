@@ -24,17 +24,17 @@ import (
 	v1alpha1 "knative.dev/eventing-operator/pkg/client/clientset/versioned/typed/eventing/v1alpha1"
 )
 
-type FakeEventingV1alpha1 struct {
+type FakeOperatorV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeEventingV1alpha1) KnativeEventings(namespace string) v1alpha1.KnativeEventingInterface {
-	return &FakeKnativeEventings{c, namespace}
+func (c *FakeOperatorV1alpha1) Eventings(namespace string) v1alpha1.EventingInterface {
+	return &FakeEventings{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *FakeEventingV1alpha1) RESTClient() rest.Interface {
+func (c *FakeOperatorV1alpha1) RESTClient() rest.Interface {
 	var ret *rest.RESTClient
 	return ret
 }

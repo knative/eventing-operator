@@ -25,8 +25,8 @@ import (
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/testing"
 	clientset "knative.dev/eventing-operator/pkg/client/clientset/versioned"
-	eventingv1alpha1 "knative.dev/eventing-operator/pkg/client/clientset/versioned/typed/eventing/v1alpha1"
-	fakeeventingv1alpha1 "knative.dev/eventing-operator/pkg/client/clientset/versioned/typed/eventing/v1alpha1/fake"
+	operatorv1alpha1 "knative.dev/eventing-operator/pkg/client/clientset/versioned/typed/eventing/v1alpha1"
+	fakeoperatorv1alpha1 "knative.dev/eventing-operator/pkg/client/clientset/versioned/typed/eventing/v1alpha1/fake"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.
@@ -71,12 +71,12 @@ func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 
 var _ clientset.Interface = &Clientset{}
 
-// EventingV1alpha1 retrieves the EventingV1alpha1Client
-func (c *Clientset) EventingV1alpha1() eventingv1alpha1.EventingV1alpha1Interface {
-	return &fakeeventingv1alpha1.FakeEventingV1alpha1{Fake: &c.Fake}
+// OperatorV1alpha1 retrieves the OperatorV1alpha1Client
+func (c *Clientset) OperatorV1alpha1() operatorv1alpha1.OperatorV1alpha1Interface {
+	return &fakeoperatorv1alpha1.FakeOperatorV1alpha1{Fake: &c.Fake}
 }
 
-// Eventing retrieves the EventingV1alpha1Client
-func (c *Clientset) Eventing() eventingv1alpha1.EventingV1alpha1Interface {
-	return &fakeeventingv1alpha1.FakeEventingV1alpha1{Fake: &c.Fake}
+// Operator retrieves the OperatorV1alpha1Client
+func (c *Clientset) Operator() operatorv1alpha1.OperatorV1alpha1Interface {
+	return &fakeoperatorv1alpha1.FakeOperatorV1alpha1{Fake: &c.Fake}
 }

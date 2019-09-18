@@ -172,9 +172,9 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	Eventing() eventing.Interface
+	Operator() eventing.Interface
 }
 
-func (f *sharedInformerFactory) Eventing() eventing.Interface {
+func (f *sharedInformerFactory) Operator() eventing.Interface {
 	return eventing.New(f, f.namespace, f.tweakListOptions)
 }

@@ -21,13 +21,13 @@ package fake
 import (
 	"context"
 
-	knativeeventing "knative.dev/eventing-operator/pkg/client/injection/informers/eventing/v1alpha1/knativeeventing"
+	eventing "knative.dev/eventing-operator/pkg/client/injection/informers/eventing/v1alpha1/eventing"
 	fake "knative.dev/eventing-operator/pkg/client/injection/informers/factory/fake"
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
 )
 
-var Get = knativeeventing.Get
+var Get = eventing.Get
 
 func init() {
 	injection.Fake.RegisterInformer(withInformer)
@@ -35,6 +35,6 @@ func init() {
 
 func withInformer(ctx context.Context) (context.Context, controller.Informer) {
 	f := fake.Get(ctx)
-	inf := f.Eventing().V1alpha1().KnativeEventings()
-	return context.WithValue(ctx, knativeeventing.Key{}, inf), inf.Informer()
+	inf := f.Operator().V1alpha1().Eventings()
+	return context.WithValue(ctx, eventing.Key{}, inf), inf.Informer()
 }
