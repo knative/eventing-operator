@@ -15,6 +15,22 @@ limitations under the License.
 */
 package main
 
+import (
+	"flag"
+	"log"
+
+	"k8s.io/client-go/tools/clientcmd"
+	"knative.dev/pkg/injection/sharedmain"
+	"knative.dev/pkg/signals"
+	"knative.dev/eventing-operator/pkg/reconciler/knativeeventing"
+)
+
 func main() {
-	// TODO implement the main function
+	flag.Parse()
+
+	cfg, err := clientcmd.BuildConfigFromFlags(*knativeeventing.MasterURL, *knativeeventing.Kubeconfig)
+	if err != nil {
+		log.Fatal("Error building kubeconfig", err)
+	}
+	sharedmain.MainWithConfig(signals.NewContext(), "eveting-operator", cfg, knativeeventing.NewController)
 }
