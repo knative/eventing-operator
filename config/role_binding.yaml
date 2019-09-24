@@ -17,6 +17,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: knative-eventing-operator
+  namespace: default
 roleRef:
   kind: ClusterRole
   name: knative-eventing-operator

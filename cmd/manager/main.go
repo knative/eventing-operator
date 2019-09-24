@@ -32,5 +32,5 @@ func main() {
 	if err != nil {
 		log.Fatal("Error building kubeconfig", err)
 	}
-	sharedmain.MainWithConfig(signals.NewContext(), "eveting-operator", cfg, knativeeventing.NewController)
+	sharedmain.MainWithConfig(signals.NewContext(), "eventing-operator", cfg, knativeeventing.NewController)
 }

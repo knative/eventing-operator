@@ -529,9 +529,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:382bb5a7fb4034db3b6a2d19e5a4a6bcf52f4750530603c01ca18a172fa3089b"
+  digest = "1:a2fc247e64b5dafd3251f12d396ec85f163d5bb38763c4997856addddf6e78d8"
   name = "golang.org/x/sync"
-  packages = ["semaphore"]
+  packages = [
+    "errgroup",
+    "semaphore",
+  ]
   pruneopts = "NUT"
   revision = "cd5d95a43a6e21273425c7ae415d3df9ea832eeb"
 
@@ -1062,12 +1065,16 @@
     "controller",
     "injection",
     "injection/clients/dynamicclient",
+    "injection/sharedmain",
     "kmeta",
     "kmp",
     "logging",
     "logging/logkey",
     "metrics",
     "metrics/metricskey",
+    "profiling",
+    "signals",
+    "system",
   ]
   pruneopts = "T"
   revision = "24f524cb25af0f824ad227a1726affc9c2a58ba9"
@@ -1129,8 +1136,10 @@
     "knative.dev/pkg/controller",
     "knative.dev/pkg/injection",
     "knative.dev/pkg/injection/clients/dynamicclient",
+    "knative.dev/pkg/injection/sharedmain",
     "knative.dev/pkg/logging",
     "knative.dev/pkg/logging/logkey",
+    "knative.dev/pkg/signals",
     "knative.dev/test-infra/scripts",
     "knative.dev/test-infra/tools/dep-collector",
   ]
