@@ -27,8 +27,8 @@ var eventingCondSet = apis.NewLivingConditionSet(
 	InstallSucceeded,
 )
 
-// GetGroupVersionKind returns SchemeGroupVersion of an Ingress
-func (e *Eventing) GetGroupVersionKind() schema.GroupVersionKind {
+// GroupVersionKind returns SchemeGroupVersion of an Eventing
+func (e *Eventing) GroupVersionKind() schema.GroupVersionKind {
 	return SchemeGroupVersion.WithKind("Eventing")
 }
 
@@ -37,7 +37,7 @@ func (es *EventingStatus) GetCondition(t apis.ConditionType) *apis.Condition {
 	return eventingCondSet.Manage(es).GetCondition(t)
 }
 
-// InitializeConditions initializes conditions of an IngressStatus
+// InitializeConditions initializes conditions of an EventingStatus
 func (es *EventingStatus) InitializeConditions() {
 	eventingCondSet.Manage(es).InitializeConditions()
 }
