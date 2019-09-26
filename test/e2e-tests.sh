@@ -28,6 +28,9 @@
 
 source $(dirname $0)/../vendor/knative.dev/test-infra/scripts/e2e-tests.sh
 
+# Namespace used for tests
+readonly TEST_NAMESPACE="operator-tests"
+
 function install_eventing_operator() {
   header "Installing Knative Eventing operator"
 
@@ -38,6 +41,8 @@ function install_eventing_operator() {
 }
 
 function knative_setup() {
+  echo ">> Creating test namespaces"
+  kubectl create namespace $TEST_NAMESPACE
   install_eventing_operator
 }
 
@@ -51,7 +56,7 @@ header "Running tests for Knative Eventing Operator"
 failed=0
 
 # Run the integration tests
-# go_test_e2e -timeout=20m ./test/e2e || failed=1
+go_test_e2e -timeout=20m ./test/e2e || failed=1
 
 # Require that tests succeeded.
 (( failed )) && fail_test

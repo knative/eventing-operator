@@ -338,6 +338,14 @@
   version = "1.0.1"
 
 [[projects]]
+  digest = "1:c01e66557785d9d75328704d11c44c26582980cd78209475cb141b3eedd11e9f"
+  name = "github.com/openzipkin/zipkin-go"
+  packages = ["model"]
+  pruneopts = "NUT"
+  revision = "c29478e51bfb2e9c93e0e9f5e015e5993a490399"
+  version = "v0.2.2"
+
+[[projects]]
   digest = "1:4af5ef5028af0c996043a4ed5731c51a649fc3d27d700a2d88a47d51591ab993"
   name = "github.com/operator-framework/operator-sdk"
   packages = ["pkg/restmapper"]
@@ -827,7 +835,7 @@
   version = "kubernetes-1.12.6"
 
 [[projects]]
-  digest = "1:30060de6e04f71bef044c67a350b7fbf3b2e315291973530bcd25bd9e7965d7b"
+  digest = "1:1d208f96269617f7d8e79ef5c957a5a0f70834198b199c8f56b9ba5b68d4ff6e"
   name = "k8s.io/client-go"
   packages = [
     "discovery",
@@ -942,10 +950,12 @@
     "pkg/apis/clientauthentication/v1beta1",
     "pkg/version",
     "plugin/pkg/client/auth/exec",
+    "plugin/pkg/client/auth/gcp",
     "rest",
     "rest/watch",
     "restmapper",
     "testing",
+    "third_party/forked/golang/template",
     "tools/auth",
     "tools/cache",
     "tools/clientcmd",
@@ -963,6 +973,7 @@
     "util/flowcontrol",
     "util/homedir",
     "util/integer",
+    "util/jsonpath",
     "util/retry",
     "util/workqueue",
   ]
@@ -1073,8 +1084,17 @@
     "metrics",
     "metrics/metricskey",
     "profiling",
+    "ptr",
     "signals",
     "system",
+    "test",
+    "test/helpers",
+    "test/ingress",
+    "test/logging",
+    "test/logstream",
+    "test/monitoring",
+    "test/spoof",
+    "test/zipkin",
   ]
   pruneopts = "T"
   revision = "24f524cb25af0f824ad227a1726affc9c2a58ba9"
@@ -1095,9 +1115,13 @@
   analyzer-version = 1
   input-imports = [
     "github.com/jcrossley3/manifestival",
+    "github.com/pkg/errors",
     "go.uber.org/zap",
+    "k8s.io/api/apps/v1",
     "k8s.io/api/core/v1",
+    "k8s.io/apimachinery/pkg/api/equality",
     "k8s.io/apimachinery/pkg/api/errors",
+    "k8s.io/apimachinery/pkg/api/meta",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/labels",
     "k8s.io/apimachinery/pkg/runtime",
@@ -1107,6 +1131,7 @@
     "k8s.io/apimachinery/pkg/util/runtime",
     "k8s.io/apimachinery/pkg/util/sets",
     "k8s.io/apimachinery/pkg/util/sets/types",
+    "k8s.io/apimachinery/pkg/util/wait",
     "k8s.io/apimachinery/pkg/watch",
     "k8s.io/client-go/discovery",
     "k8s.io/client-go/discovery/fake",
@@ -1114,6 +1139,7 @@
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/scheme",
     "k8s.io/client-go/kubernetes/typed/core/v1",
+    "k8s.io/client-go/plugin/pkg/client/auth/gcp",
     "k8s.io/client-go/rest",
     "k8s.io/client-go/testing",
     "k8s.io/client-go/tools/cache",
@@ -1126,6 +1152,7 @@
     "k8s.io/code-generator/cmd/defaulter-gen",
     "k8s.io/code-generator/cmd/informer-gen",
     "k8s.io/code-generator/cmd/lister-gen",
+    "knative.dev/pkg/apis",
     "knative.dev/pkg/apis/duck/v1beta1",
     "knative.dev/pkg/client/clientset/versioned",
     "knative.dev/pkg/client/injection/client",
@@ -1140,6 +1167,9 @@
     "knative.dev/pkg/logging",
     "knative.dev/pkg/logging/logkey",
     "knative.dev/pkg/signals",
+    "knative.dev/pkg/test",
+    "knative.dev/pkg/test/logging",
+    "knative.dev/pkg/test/logstream",
     "knative.dev/test-infra/scripts",
     "knative.dev/test-infra/tools/dep-collector",
   ]
