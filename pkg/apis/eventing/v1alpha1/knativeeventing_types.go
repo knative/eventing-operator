@@ -18,6 +18,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	duckv1beta1 "knative.dev/pkg/apis/duck/v1beta1"
+	"knative.dev/pkg/apis"
 )
 
 // +genclient
@@ -73,3 +74,11 @@ type EventingList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []Eventing `json:"items"`
 }
+
+const (
+	// EventingConditionReady is set when the Eventing Operator is installed, configured and ready.
+	EventingConditionReady = apis.ConditionReady
+
+	// InstallSucceeded is set when the Knative Eventing is installed.
+	InstallSucceeded     apis.ConditionType = "InstallSucceeded"
+)

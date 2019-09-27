@@ -9,6 +9,8 @@ spec:
     listKind: EventingList
     plural: eventings
     singular: eventing
+    shortNames:
+    - ke
   scope: Namespaced
   subresources:
     status: {}
