@@ -8,13 +8,6 @@ The following steps will install
 appropriately for your cluster in the `knative-eventing` namespace. Please make
 sure the [prerequisites](#Prerequisites) are installed first.
 
-1. Install the
-   [KnativeEventing CRD](config/crds/eventing_v1alpha1_knativeeventing_crd.yaml)
-
-   ```
-   kubectl apply -f config/crds/eventing_v1alpha1_knativeeventing_crd.yaml
-   ```
-
 1. Install the operator
 
    To install from source code, run the command:
@@ -57,7 +50,7 @@ build your own image.
 
 The installation of Knative Eventing is triggered by the creation of a
 `Eventing` custom resource (CR) as defined by
-[this CRD](config/crds/eventing_v1alpha1_knativeeventing_crd.yaml). The operator
+[this CRD](config/300-eventing-v1alpha1-knativeeventing-crd.yaml). The operator
 will deploy Knative Eventing in the same namespace containing the
 `Eventing` CR, and this CR will trigger the installation, reconfiguration,
 or removal of the knative eventing resources.
