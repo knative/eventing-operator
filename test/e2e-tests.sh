@@ -35,7 +35,6 @@ function install_eventing_operator() {
   header "Installing Knative Eventing operator"
 
   # Deploy the operator
-  kubectl apply -f config/crds/eventing_v1alpha1_knativeeventing_crd.yaml
   ko apply -f config/
   wait_until_pods_running default || fail_test "Eventing Operator did not come up"
 }
