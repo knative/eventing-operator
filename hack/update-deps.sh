@@ -30,4 +30,6 @@ rm -rf $(find vendor/ -name '*_test.go')
 rm -rf $(find vendor/ -name 'BUILD')
 rm -rf $(find vendor/ -name 'BUILD.bazel')
 
+update_licenses third_party/VENDOR-LICENSE "./cmd/*"
+
 remove_broken_symlinks ./vendor
