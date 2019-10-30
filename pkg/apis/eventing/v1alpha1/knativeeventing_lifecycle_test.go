@@ -32,11 +32,11 @@ var ignoreAllButTypeAndStatus = cmpopts.IgnoreFields(
 	"LastTransitionTime", "Message", "Reason", "Severity")
 
 func TestKnativeEventingGroupVersionKind(t *testing.T) {
-	r := &Eventing{}
+	r := &KnativeEventing{}
 	want := schema.GroupVersionKind{
 		Group:   GroupName,
 		Version: SchemaVersion,
-		Kind:    "Eventing",
+		Kind:    Kind,
 	}
 	if got := r.GroupVersionKind(); got != want {
 		t.Errorf("got: %v, want: %v", got, want)
@@ -44,7 +44,7 @@ func TestKnativeEventingGroupVersionKind(t *testing.T) {
 }
 
 func TestKnativeEventingStatusGetCondition(t *testing.T) {
-	ke := &EventingStatus{}
+	ke := &KnativeEventingStatus{}
 	if a := ke.GetCondition(InstallSucceeded); a != nil {
 		t.Errorf("empty EventingStatus returned %v when expected nil", a)
 	}
@@ -59,7 +59,7 @@ func TestKnativeEventingStatusGetCondition(t *testing.T) {
 }
 
 func TestKnativeEventingStatusEventingInstalled(t *testing.T) {
-	ke := &EventingStatus{}
+	ke := &KnativeEventingStatus{}
 	mc := &apis.Condition{
 		Type:   InstallSucceeded,
 		Status: corev1.ConditionTrue,
@@ -73,7 +73,7 @@ func TestKnativeEventingStatusEventingInstalled(t *testing.T) {
 func TestKnativeEventingStatusEventingFailed(t *testing.T) {
 	reason := "NotReady"
 	message := "Waiting on deployments"
-	ke := &EventingStatus{}
+	ke := &KnativeEventingStatus{}
 	mc := &apis.Condition{
 		Type:    EventingConditionReady,
 		Status:  corev1.ConditionFalse,
@@ -89,7 +89,7 @@ func TestKnativeEventingStatusEventingFailed(t *testing.T) {
 func TestKnativeEventingStatusNotReady(t *testing.T) {
 	reason := "NotReady"
 	message := "Waiting on deployments"
-	ke := &EventingStatus{}
+	ke := &KnativeEventingStatus{}
 	mc := &apis.Condition{
 		Type:    EventingConditionReady,
 		Status:  corev1.ConditionUnknown,
@@ -103,7 +103,7 @@ func TestKnativeEventingStatusNotReady(t *testing.T) {
 }
 
 func TestKnativeEventingStatusReady(t *testing.T) {
-	ke := &EventingStatus{}
+	ke := &KnativeEventingStatus{}
 	mc := &apis.Condition{
 		Type:   EventingConditionReady,
 		Status: corev1.ConditionTrue,
@@ -115,7 +115,7 @@ func TestKnativeEventingStatusReady(t *testing.T) {
 }
 
 func TestKnativeEventingStatusIsReady(t *testing.T) {
-	ke := &EventingStatus{}
+	ke := &KnativeEventingStatus{}
 	ke.MarkEventingReady()
 	if diff := cmp.Diff(true, ke.IsReady()); diff != "" {
 		t.Errorf("IsReady refs diff (-want +got): %v", diff)
@@ -125,12 +125,12 @@ func TestKnativeEventingStatusIsReady(t *testing.T) {
 func TestKnativeEventingInitializeConditions(t *testing.T) {
 	tests := []struct {
 		name string
-		ke   *EventingStatus
-		want *EventingStatus
+		ke   *KnativeEventingStatus
+		want *KnativeEventingStatus
 	}{{
 		name: "empty",
-		ke:   &EventingStatus{},
-		want: &EventingStatus{
+		ke:   &KnativeEventingStatus{},
+		want: &KnativeEventingStatus{
 			Status: duckv1beta1.Status{
 				Conditions: []apis.Condition{{
 					Type:   InstallSucceeded,
@@ -143,7 +143,7 @@ func TestKnativeEventingInitializeConditions(t *testing.T) {
 		},
 	}, {
 		name: "eventingConditionNotReady",
-		ke: &EventingStatus{
+		ke: &KnativeEventingStatus{
 			Status: duckv1beta1.Status{
 				Conditions: []apis.Condition{{
 					Type:   EventingConditionReady,
@@ -151,7 +151,7 @@ func TestKnativeEventingInitializeConditions(t *testing.T) {
 				}},
 			},
 		},
-		want: &EventingStatus{
+		want: &KnativeEventingStatus{
 			Status: duckv1beta1.Status{
 				Conditions: []apis.Condition{{
 					Type:   InstallSucceeded,
@@ -164,7 +164,7 @@ func TestKnativeEventingInitializeConditions(t *testing.T) {
 		},
 	}, {
 		name: "eventingConditionReady",
-		ke: &EventingStatus{
+		ke: &KnativeEventingStatus{
 			Status: duckv1beta1.Status{
 				Conditions: []apis.Condition{{
 					Type:   EventingConditionReady,
@@ -172,7 +172,7 @@ func TestKnativeEventingInitializeConditions(t *testing.T) {
 				}},
 			},
 		},
-		want: &EventingStatus{
+		want: &KnativeEventingStatus{
 			Status: duckv1beta1.Status{
 				Conditions: []apis.Condition{{
 					Type:   InstallSucceeded,
@@ -185,7 +185,7 @@ func TestKnativeEventingInitializeConditions(t *testing.T) {
 		},
 	}, {
 		name: "installSucceeded",
-		ke: &EventingStatus{
+		ke: &KnativeEventingStatus{
 			Status: duckv1beta1.Status{
 				Conditions: []apis.Condition{{
 					Type:   InstallSucceeded,
@@ -193,7 +193,7 @@ func TestKnativeEventingInitializeConditions(t *testing.T) {
 				}},
 			},
 		},
-		want: &EventingStatus{
+		want: &KnativeEventingStatus{
 			Status: duckv1beta1.Status{
 				Conditions: []apis.Condition{{
 					Type:   InstallSucceeded,
@@ -206,7 +206,7 @@ func TestKnativeEventingInitializeConditions(t *testing.T) {
 		},
 	}, {
 		name: "installNotSucceeded",
-		ke: &EventingStatus{
+		ke: &KnativeEventingStatus{
 			Status: duckv1beta1.Status{
 				Conditions: []apis.Condition{{
 					Type:   InstallSucceeded,
@@ -214,7 +214,7 @@ func TestKnativeEventingInitializeConditions(t *testing.T) {
 				}},
 			},
 		},
-		want: &EventingStatus{
+		want: &KnativeEventingStatus{
 			Status: duckv1beta1.Status{
 				Conditions: []apis.Condition{{
 					Type:   InstallSucceeded,

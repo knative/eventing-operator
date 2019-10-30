@@ -28,7 +28,7 @@ import (
 // EventingLister helps list Eventings.
 type EventingLister interface {
 	// List lists all Eventings in the indexer.
-	List(selector labels.Selector) (ret []*v1alpha1.Eventing, err error)
+	List(selector labels.Selector) (ret []*v1alpha1.KnativeEventing, err error)
 	// Eventings returns an object that can list and get Eventings.
 	Eventings(namespace string) EventingNamespaceLister
 	EventingListerExpansion
@@ -45,9 +45,9 @@ func NewEventingLister(indexer cache.Indexer) EventingLister {
 }
 
 // List lists all Eventings in the indexer.
-func (s *eventingLister) List(selector labels.Selector) (ret []*v1alpha1.Eventing, err error) {
+func (s *eventingLister) List(selector labels.Selector) (ret []*v1alpha1.KnativeEventing, err error) {
 	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.Eventing))
+		ret = append(ret, m.(*v1alpha1.KnativeEventing))
 	})
 	return ret, err
 }
@@ -60,9 +60,9 @@ func (s *eventingLister) Eventings(namespace string) EventingNamespaceLister {
 // EventingNamespaceLister helps list and get Eventings.
 type EventingNamespaceLister interface {
 	// List lists all Eventings in the indexer for a given namespace.
-	List(selector labels.Selector) (ret []*v1alpha1.Eventing, err error)
-	// Get retrieves the Eventing from the indexer for a given namespace and name.
-	Get(name string) (*v1alpha1.Eventing, error)
+	List(selector labels.Selector) (ret []*v1alpha1.KnativeEventing, err error)
+	// Get retrieves the KnativeEventing from the indexer for a given namespace and name.
+	Get(name string) (*v1alpha1.KnativeEventing, error)
 	EventingNamespaceListerExpansion
 }
 
@@ -74,21 +74,21 @@ type eventingNamespaceLister struct {
 }
 
 // List lists all Eventings in the indexer for a given namespace.
-func (s eventingNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1.Eventing, err error) {
+func (s eventingNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1.KnativeEventing, err error) {
 	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.Eventing))
+		ret = append(ret, m.(*v1alpha1.KnativeEventing))
 	})
 	return ret, err
 }
 
-// Get retrieves the Eventing from the indexer for a given namespace and name.
-func (s eventingNamespaceLister) Get(name string) (*v1alpha1.Eventing, error) {
+// Get retrieves the KnativeEventing from the indexer for a given namespace and name.
+func (s eventingNamespaceLister) Get(name string) (*v1alpha1.KnativeEventing, error) {
 	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
 	if err != nil {
 		return nil, err
 	}
 	if !exists {
-		return nil, errors.NewNotFound(v1alpha1.Resource("eventing"), name)
+		return nil, errors.NewNotFound(v1alpha1.Resource(v1alpha1.ResourceName), name)
 	}
-	return obj.(*v1alpha1.Eventing), nil
+	return obj.(*v1alpha1.KnativeEventing), nil
 }

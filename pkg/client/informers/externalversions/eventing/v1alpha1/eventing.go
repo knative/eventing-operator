@@ -44,14 +44,14 @@ type eventingInformer struct {
 	namespace        string
 }
 
-// NewEventingInformer constructs a new informer for Eventing type.
+// NewEventingInformer constructs a new informer for KnativeEventing type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
 func NewEventingInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
 	return NewFilteredEventingInformer(client, namespace, resyncPeriod, indexers, nil)
 }
 
-// NewFilteredEventingInformer constructs a new informer for Eventing type.
+// NewFilteredEventingInformer constructs a new informer for KnativeEventing type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
 func NewFilteredEventingInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
@@ -70,7 +70,7 @@ func NewFilteredEventingInformer(client versioned.Interface, namespace string, r
 				return client.OperatorV1alpha1().Eventings(namespace).Watch(options)
 			},
 		},
-		&eventingv1alpha1.Eventing{},
+		&eventingv1alpha1.KnativeEventing{},
 		resyncPeriod,
 		indexers,
 	)
@@ -81,7 +81,7 @@ func (f *eventingInformer) defaultInformer(client versioned.Interface, resyncPer
 }
 
 func (f *eventingInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&eventingv1alpha1.Eventing{}, f.defaultInformer)
+	return f.factory.InformerFor(&eventingv1alpha1.KnativeEventing{}, f.defaultInformer)
 }
 
 func (f *eventingInformer) Lister() v1alpha1.EventingLister {

@@ -28,6 +28,15 @@ const (
 
 	// The Version of the schema. This is used for CRDs.
 	SchemaVersion = "v1alpha1"
+
+	// Kind of a CRD.
+	Kind = "KnativeEventing"
+
+	// ResourceName is name of CRD that is used in CLI.
+	ResourceName = "knativeeventing"
+
+	// PluralResourceName is plural version of name of CRD used in CLI.
+	PluralResourceName = "knativeeventings"
 )
 
 // Resource takes an unqualified resource and returns a Group qualified GroupResource
@@ -39,8 +48,8 @@ func Resource(resource string) schema.GroupResource {
 // scheme.
 func addKnownTypes(s *runtime.Scheme) error {
 	s.AddKnownTypes(SchemeGroupVersion,
-		&Eventing{},
-		&EventingList{})
+		&KnativeEventing{},
+		&KnativeEventingList{})
 	metav1.AddToGroupVersion(s, SchemeGroupVersion)
 	return nil
 }

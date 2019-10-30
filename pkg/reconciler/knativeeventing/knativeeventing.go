@@ -86,7 +86,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 	// Don't modify the informers copy.
 	knativeEventing := original.DeepCopy()
 
-	// Reconcile this copy of the Eventing resource and then write back any status
+	// Reconcile this copy of the KnativeEventing resource and then write back any status
 	// updates regardless of whether the reconciliation errored out.
 	reconcileErr := r.reconcile(ctx, knativeEventing)
 	if equality.Semantic.DeepEqual(original.Status, knativeEventing.Status) {
@@ -95,9 +95,9 @@ func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 		// cache may be stale and we don't want to overwrite a prior update
 		// to status with this stale state.
 	} else if _, err = r.updateStatus(knativeEventing); err != nil {
-		r.Logger.Warnw("Failed to update Eventing status", zap.Error(err))
+		r.Logger.Warnw("Failed to update KnativeEventing status", zap.Error(err))
 		r.Recorder.Eventf(knativeEventing, corev1.EventTypeWarning, "UpdateFailed",
-			"Failed to update status for Eventing %q: %v", knativeEventing.Name, err)
+			"Failed to update status for KnativeEventing %q: %v", knativeEventing.Name, err)
 		return err
 	}
 	if reconcileErr != nil {
@@ -107,11 +107,11 @@ func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 	return nil
 }
 
-func (r *Reconciler) reconcile(ctx context.Context, ke *eventingv1alpha1.Eventing) error {
+func (r *Reconciler) reconcile(ctx context.Context, ke *eventingv1alpha1.KnativeEventing) error {
 	reqLogger := r.Logger.With(zap.String("Request.Namespace", ke.Namespace)).With("Request.Name", ke.Name)
-	reqLogger.Infow("Reconciling Eventing", "status", ke.Status)
+	reqLogger.Infow("Reconciling KnativeEventing", "status", ke.Status)
 
-	stages := []func(*mf.Manifest, *eventingv1alpha1.Eventing) error{
+	stages := []func(*mf.Manifest, *eventingv1alpha1.KnativeEventing) error{
 		r.initStatus,
 		r.install,
 		r.checkDeployments,
@@ -131,7 +131,7 @@ func (r *Reconciler) reconcile(ctx context.Context, ke *eventingv1alpha1.Eventin
 	return nil
 }
 
-func (r *Reconciler) initStatus(_ *mf.Manifest, ke *eventingv1alpha1.Eventing) error {
+func (r *Reconciler) initStatus(_ *mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
 	r.Logger.Debug("Initializing status")
 	if len(ke.Status.Conditions) == 0 {
 		ke.Status.InitializeConditions()
@@ -142,7 +142,7 @@ func (r *Reconciler) initStatus(_ *mf.Manifest, ke *eventingv1alpha1.Eventing) e
 	return nil
 }
 
-func (r *Reconciler) transform(instance *eventingv1alpha1.Eventing) (*mf.Manifest, error) {
+func (r *Reconciler) transform(instance *eventingv1alpha1.KnativeEventing) (*mf.Manifest, error) {
 	r.Logger.Debug("Transforming manifest")
 	transforms, err := platform.Transformers(r.KubeClientSet, instance, r.Logger)
 	if err != nil {
@@ -151,7 +151,7 @@ func (r *Reconciler) transform(instance *eventingv1alpha1.Eventing) (*mf.Manifes
 	return r.config.Transform(transforms...)
 }
 
-func (r *Reconciler) install(manifest *mf.Manifest, ke *eventingv1alpha1.Eventing) error {
+func (r *Reconciler) install(manifest *mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
 	r.Logger.Debug("Installing manifest")
 	if err := manifest.ApplyAll(); err != nil {
 		ke.Status.MarkEventingFailed("Manifest Installation", err.Error())
@@ -162,7 +162,7 @@ func (r *Reconciler) install(manifest *mf.Manifest, ke *eventingv1alpha1.Eventin
 	return nil
 }
 
-func (r *Reconciler) checkDeployments(manifest *mf.Manifest, ke *eventingv1alpha1.Eventing) error {
+func (r *Reconciler) checkDeployments(manifest *mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
 	r.Logger.Debug("Checking deployments")
 	defer r.updateStatus(ke)
 	available := func(d *appsv1.Deployment) bool {
@@ -193,7 +193,7 @@ func (r *Reconciler) checkDeployments(manifest *mf.Manifest, ke *eventingv1alpha
 	return nil
 }
 
-func (r *Reconciler) updateStatus(desired *eventingv1alpha1.Eventing) (*eventingv1alpha1.Eventing, error) {
+func (r *Reconciler) updateStatus(desired *eventingv1alpha1.KnativeEventing) (*eventingv1alpha1.KnativeEventing, error) {
 	ke, err := r.KnativeEventingClientSet.OperatorV1alpha1().Eventings(desired.Namespace).Get(desired.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err

@@ -14,21 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-source $(dirname $0)/../vendor/knative.dev/test-infra/scripts/library.sh
+# shellcheck disable=SC1090
+source "$(dirname "$0")/../vendor/knative.dev/test-infra/scripts/library.sh"
 
 set -o errexit
 set -o nounset
 set -o pipefail
 
-cd ${REPO_ROOT_DIR}
+cd "${REPO_ROOT_DIR}" || exit $?
 
 # Ensure we have everything we need under vendor/
 dep ensure
 
-rm -rf $(find vendor/ -name 'OWNERS')
-rm -rf $(find vendor/ -name '*_test.go')
-rm -rf $(find vendor/ -name 'BUILD')
-rm -rf $(find vendor/ -name 'BUILD.bazel')
+find vendor/ -name 'OWNERS' -delete
+find vendor/ -name '*_test.go' -delete
+find vendor/ -name 'BUILD' -delete
+find vendor/ -name 'BUILD.bazel' -delete
 
 update_licenses third_party/VENDOR-LICENSE "./cmd/*"
 
