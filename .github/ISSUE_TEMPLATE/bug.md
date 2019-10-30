@@ -17,6 +17,7 @@ A clear and concise description of what you expected to happen.
 Steps to reproduce the behavior.
 
  **Knative release version**
+Add any other context about the used version
 
  **Additional context**
 Add any other context about the problem here such as proposed priority
