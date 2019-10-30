@@ -3,7 +3,7 @@ kind: ClusterRole
 metadata:
   labels:
     duck.knative.dev/addressable: "true"
-    eventing.knative.dev/release: "v0.9.0"
+    eventing.knative.dev/release: "v0.10.0"
   name: imc-addressable-resolver
 rules:
 - apiGroups:
@@ -22,7 +22,7 @@ kind: ClusterRole
 metadata:
   labels:
     duck.knative.dev/channelable: "true"
-    eventing.knative.dev/release: "v0.9.0"
+    eventing.knative.dev/release: "v0.10.0"
   name: imc-channelable-manipulator
 rules:
 - apiGroups:
@@ -43,7 +43,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    eventing.knative.dev/release: "v0.9.0"
+    eventing.knative.dev/release: "v0.10.0"
   name: imc-controller
 rules:
 - apiGroups:
@@ -111,7 +111,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    eventing.knative.dev/release: "v0.9.0"
+    eventing.knative.dev/release: "v0.10.0"
   name: imc-dispatcher
 rules:
 - apiGroups:
@@ -143,7 +143,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    eventing.knative.dev/release: "v0.9.0"
+    eventing.knative.dev/release: "v0.10.0"
     messaging.knative.dev/channel: in-memory-channel
     messaging.knative.dev/role: dispatcher
   name: imc-dispatcher
@@ -162,7 +162,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
-    eventing.knative.dev/release: "v0.9.0"
+    eventing.knative.dev/release: "v0.10.0"
   name: imc-controller
   namespace: knative-eventing
 ---
@@ -170,7 +170,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
-    eventing.knative.dev/release: "v0.9.0"
+    eventing.knative.dev/release: "v0.10.0"
   name: imc-dispatcher
   namespace: knative-eventing
 
@@ -179,7 +179,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
-    eventing.knative.dev/release: "v0.9.0"
+    eventing.knative.dev/release: "v0.10.0"
   name: imc-controller
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -194,7 +194,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
-    eventing.knative.dev/release: "v0.9.0"
+    eventing.knative.dev/release: "v0.10.0"
   name: imc-dispatcher
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -210,7 +210,8 @@ apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
   labels:
-    eventing.knative.dev/release: "v0.9.0"
+    duck.knative.dev/addressable: "true"
+    eventing.knative.dev/release: "v0.10.0"
     knative.dev/crd-install: "true"
     messaging.knative.dev/subscribable: "true"
   name: inmemorychannels.messaging.knative.dev
@@ -222,8 +223,8 @@ spec:
   - JSONPath: .status.conditions[?(@.type=="Ready")].reason
     name: Reason
     type: string
-  - JSONPath: .status.address.hostname
-    name: Hostname
+  - JSONPath: .status.address.url
+    name: URL
     type: string
   - JSONPath: .metadata.creationTimestamp
     name: Age
@@ -296,7 +297,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    eventing.knative.dev/release: "v0.9.0"
+    eventing.knative.dev/release: "v0.10.0"
   name: imc-controller
   namespace: knative-eventing
 spec:
@@ -323,7 +324,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/in_memory/channel_controller@sha256:3aec3b1570d8890c413d45d2b02ea508e6d59dee3fc899634e91b4a5fdde5155
+        image: gcr.io/knative-releases/knative.dev/eventing/cmd/in_memory/channel_controller@sha256:b07cb2a452a348643a7e806965b90af05d2a89f99e98ae3285179dee3e7cf6cf
         name: controller
         ports:
         - containerPort: 9090
@@ -342,7 +343,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    eventing.knative.dev/release: "v0.9.0"
+    eventing.knative.dev/release: "v0.10.0"
   name: imc-dispatcher
   namespace: knative-eventing
 spec:
@@ -369,7 +370,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/in_memory/channel_dispatcher@sha256:0d39aa1579d735203e7f6aa3bf6e0235f5fb96abd8935ea8fd61936d708ff135
+        image: gcr.io/knative-releases/knative.dev/eventing/cmd/in_memory/channel_dispatcher@sha256:7675ebbcb349a6362520d8210f25305d9863ff8a03668bb6b562322df9a47c18
         name: dispatcher
         ports:
         - containerPort: 9090
