@@ -36,23 +36,23 @@ type FakeEventings struct {
 
 var eventingsResource = schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1alpha1", Resource: "eventings"}
 
-var eventingsKind = schema.GroupVersionKind{Group: "operator.knative.dev", Version: "v1alpha1", Kind: "Eventing"}
+var eventingsKind = schema.GroupVersionKind{Group: "operator.knative.dev", Version: "v1alpha1", Kind: "KnativeEventing"}
 
 // Get takes name of the eventing, and returns the corresponding eventing object, and an error if there is any.
-func (c *FakeEventings) Get(name string, options v1.GetOptions) (result *v1alpha1.Eventing, err error) {
+func (c *FakeEventings) Get(name string, options v1.GetOptions) (result *v1alpha1.KnativeEventing, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(eventingsResource, c.ns, name), &v1alpha1.Eventing{})
+		Invokes(testing.NewGetAction(eventingsResource, c.ns, name), &v1alpha1.KnativeEventing{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.Eventing), err
+	return obj.(*v1alpha1.KnativeEventing), err
 }
 
 // List takes label and field selectors, and returns the list of Eventings that match those selectors.
-func (c *FakeEventings) List(opts v1.ListOptions) (result *v1alpha1.EventingList, err error) {
+func (c *FakeEventings) List(opts v1.ListOptions) (result *v1alpha1.KnativeEventingList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewListAction(eventingsResource, eventingsKind, c.ns, opts), &v1alpha1.EventingList{})
+		Invokes(testing.NewListAction(eventingsResource, eventingsKind, c.ns, opts), &v1alpha1.KnativeEventingList{})
 
 	if obj == nil {
 		return nil, err
@@ -62,8 +62,8 @@ func (c *FakeEventings) List(opts v1.ListOptions) (result *v1alpha1.EventingList
 	if label == nil {
 		label = labels.Everything()
 	}
-	list := &v1alpha1.EventingList{ListMeta: obj.(*v1alpha1.EventingList).ListMeta}
-	for _, item := range obj.(*v1alpha1.EventingList).Items {
+	list := &v1alpha1.KnativeEventingList{ListMeta: obj.(*v1alpha1.KnativeEventingList).ListMeta}
+	for _, item := range obj.(*v1alpha1.KnativeEventingList).Items {
 		if label.Matches(labels.Set(item.Labels)) {
 			list.Items = append(list.Items, item)
 		}
@@ -79,43 +79,43 @@ func (c *FakeEventings) Watch(opts v1.ListOptions) (watch.Interface, error) {
 }
 
 // Create takes the representation of a eventing and creates it.  Returns the server's representation of the eventing, and an error, if there is any.
-func (c *FakeEventings) Create(eventing *v1alpha1.Eventing) (result *v1alpha1.Eventing, err error) {
+func (c *FakeEventings) Create(eventing *v1alpha1.KnativeEventing) (result *v1alpha1.KnativeEventing, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(eventingsResource, c.ns, eventing), &v1alpha1.Eventing{})
+		Invokes(testing.NewCreateAction(eventingsResource, c.ns, eventing), &v1alpha1.KnativeEventing{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.Eventing), err
+	return obj.(*v1alpha1.KnativeEventing), err
 }
 
 // Update takes the representation of a eventing and updates it. Returns the server's representation of the eventing, and an error, if there is any.
-func (c *FakeEventings) Update(eventing *v1alpha1.Eventing) (result *v1alpha1.Eventing, err error) {
+func (c *FakeEventings) Update(eventing *v1alpha1.KnativeEventing) (result *v1alpha1.KnativeEventing, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(eventingsResource, c.ns, eventing), &v1alpha1.Eventing{})
+		Invokes(testing.NewUpdateAction(eventingsResource, c.ns, eventing), &v1alpha1.KnativeEventing{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.Eventing), err
+	return obj.(*v1alpha1.KnativeEventing), err
 }
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeEventings) UpdateStatus(eventing *v1alpha1.Eventing) (*v1alpha1.Eventing, error) {
+func (c *FakeEventings) UpdateStatus(eventing *v1alpha1.KnativeEventing) (*v1alpha1.KnativeEventing, error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceAction(eventingsResource, "status", c.ns, eventing), &v1alpha1.Eventing{})
+		Invokes(testing.NewUpdateSubresourceAction(eventingsResource, "status", c.ns, eventing), &v1alpha1.KnativeEventing{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.Eventing), err
+	return obj.(*v1alpha1.KnativeEventing), err
 }
 
 // Delete takes name of the eventing and deletes it. Returns an error if one occurs.
 func (c *FakeEventings) Delete(name string, options *v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(eventingsResource, c.ns, name), &v1alpha1.Eventing{})
+		Invokes(testing.NewDeleteAction(eventingsResource, c.ns, name), &v1alpha1.KnativeEventing{})
 
 	return err
 }
@@ -124,17 +124,17 @@ func (c *FakeEventings) Delete(name string, options *v1.DeleteOptions) error {
 func (c *FakeEventings) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
 	action := testing.NewDeleteCollectionAction(eventingsResource, c.ns, listOptions)
 
-	_, err := c.Fake.Invokes(action, &v1alpha1.EventingList{})
+	_, err := c.Fake.Invokes(action, &v1alpha1.KnativeEventingList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched eventing.
-func (c *FakeEventings) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Eventing, err error) {
+func (c *FakeEventings) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.KnativeEventing, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(eventingsResource, c.ns, name, pt, data, subresources...), &v1alpha1.Eventing{})
+		Invokes(testing.NewPatchSubresourceAction(eventingsResource, c.ns, name, pt, data, subresources...), &v1alpha1.KnativeEventing{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.Eventing), err
+	return obj.(*v1alpha1.KnativeEventing), err
 }

@@ -26,7 +26,7 @@ var log = zap.NewExample().Sugar()
 
 type Platforms []func(kubernetes.Interface, *zap.SugaredLogger) (mf.Transformer, error)
 
-func (platforms Platforms) Transformers(kubeClientSet kubernetes.Interface, instance *eventingv1alpha1.Eventing, slog *zap.SugaredLogger) ([]mf.Transformer, error) {
+func (platforms Platforms) Transformers(kubeClientSet kubernetes.Interface, instance *eventingv1alpha1.KnativeEventing, slog *zap.SugaredLogger) ([]mf.Transformer, error) {
 	log = slog.Named("extensions")
 	result := []mf.Transformer{
 		mf.InjectOwner(instance),

@@ -35,17 +35,17 @@ type EventingsGetter interface {
 	Eventings(namespace string) EventingInterface
 }
 
-// EventingInterface has methods to work with Eventing resources.
+// EventingInterface has methods to work with KnativeEventing resources.
 type EventingInterface interface {
-	Create(*v1alpha1.Eventing) (*v1alpha1.Eventing, error)
-	Update(*v1alpha1.Eventing) (*v1alpha1.Eventing, error)
-	UpdateStatus(*v1alpha1.Eventing) (*v1alpha1.Eventing, error)
+	Create(*v1alpha1.KnativeEventing) (*v1alpha1.KnativeEventing, error)
+	Update(*v1alpha1.KnativeEventing) (*v1alpha1.KnativeEventing, error)
+	UpdateStatus(*v1alpha1.KnativeEventing) (*v1alpha1.KnativeEventing, error)
 	Delete(name string, options *v1.DeleteOptions) error
 	DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error
-	Get(name string, options v1.GetOptions) (*v1alpha1.Eventing, error)
-	List(opts v1.ListOptions) (*v1alpha1.EventingList, error)
+	Get(name string, options v1.GetOptions) (*v1alpha1.KnativeEventing, error)
+	List(opts v1.ListOptions) (*v1alpha1.KnativeEventingList, error)
 	Watch(opts v1.ListOptions) (watch.Interface, error)
-	Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Eventing, err error)
+	Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.KnativeEventing, err error)
 	EventingExpansion
 }
 
@@ -64,8 +64,8 @@ func newEventings(c *OperatorV1alpha1Client, namespace string) *eventings {
 }
 
 // Get takes name of the eventing, and returns the corresponding eventing object, and an error if there is any.
-func (c *eventings) Get(name string, options v1.GetOptions) (result *v1alpha1.Eventing, err error) {
-	result = &v1alpha1.Eventing{}
+func (c *eventings) Get(name string, options v1.GetOptions) (result *v1alpha1.KnativeEventing, err error) {
+	result = &v1alpha1.KnativeEventing{}
 	err = c.client.Get().
 		Namespace(c.ns).
 		Resource("eventings").
@@ -77,12 +77,12 @@ func (c *eventings) Get(name string, options v1.GetOptions) (result *v1alpha1.Ev
 }
 
 // List takes label and field selectors, and returns the list of Eventings that match those selectors.
-func (c *eventings) List(opts v1.ListOptions) (result *v1alpha1.EventingList, err error) {
+func (c *eventings) List(opts v1.ListOptions) (result *v1alpha1.KnativeEventingList, err error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
 	}
-	result = &v1alpha1.EventingList{}
+	result = &v1alpha1.KnativeEventingList{}
 	err = c.client.Get().
 		Namespace(c.ns).
 		Resource("eventings").
@@ -109,8 +109,8 @@ func (c *eventings) Watch(opts v1.ListOptions) (watch.Interface, error) {
 }
 
 // Create takes the representation of a eventing and creates it.  Returns the server's representation of the eventing, and an error, if there is any.
-func (c *eventings) Create(eventing *v1alpha1.Eventing) (result *v1alpha1.Eventing, err error) {
-	result = &v1alpha1.Eventing{}
+func (c *eventings) Create(eventing *v1alpha1.KnativeEventing) (result *v1alpha1.KnativeEventing, err error) {
+	result = &v1alpha1.KnativeEventing{}
 	err = c.client.Post().
 		Namespace(c.ns).
 		Resource("eventings").
@@ -121,8 +121,8 @@ func (c *eventings) Create(eventing *v1alpha1.Eventing) (result *v1alpha1.Eventi
 }
 
 // Update takes the representation of a eventing and updates it. Returns the server's representation of the eventing, and an error, if there is any.
-func (c *eventings) Update(eventing *v1alpha1.Eventing) (result *v1alpha1.Eventing, err error) {
-	result = &v1alpha1.Eventing{}
+func (c *eventings) Update(eventing *v1alpha1.KnativeEventing) (result *v1alpha1.KnativeEventing, err error) {
+	result = &v1alpha1.KnativeEventing{}
 	err = c.client.Put().
 		Namespace(c.ns).
 		Resource("eventings").
@@ -136,8 +136,8 @@ func (c *eventings) Update(eventing *v1alpha1.Eventing) (result *v1alpha1.Eventi
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
 
-func (c *eventings) UpdateStatus(eventing *v1alpha1.Eventing) (result *v1alpha1.Eventing, err error) {
-	result = &v1alpha1.Eventing{}
+func (c *eventings) UpdateStatus(eventing *v1alpha1.KnativeEventing) (result *v1alpha1.KnativeEventing, err error) {
+	result = &v1alpha1.KnativeEventing{}
 	err = c.client.Put().
 		Namespace(c.ns).
 		Resource("eventings").
@@ -177,8 +177,8 @@ func (c *eventings) DeleteCollection(options *v1.DeleteOptions, listOptions v1.L
 }
 
 // Patch applies the patch and returns the patched eventing.
-func (c *eventings) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Eventing, err error) {
-	result = &v1alpha1.Eventing{}
+func (c *eventings) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.KnativeEventing, err error) {
+	result = &v1alpha1.KnativeEventing{}
 	err = c.client.Patch(pt).
 		Namespace(c.ns).
 		Resource("eventings").

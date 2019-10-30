@@ -78,7 +78,7 @@ func NewController(
 	knativeEventingInformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
 
 	deploymentInformer.Informer().AddEventHandler(cache.FilteringResourceEventHandler{
-		FilterFunc: controller.Filter(v1alpha1.SchemeGroupVersion.WithKind("Eventing")),
+		FilterFunc: controller.Filter(v1alpha1.SchemeGroupVersion.WithKind("KnativeEventing")),
 		Handler:    controller.HandleAll(impl.EnqueueControllerOf),
 	})
 
