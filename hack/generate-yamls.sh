@@ -37,6 +37,7 @@
 
 set -o errexit
 set -o pipefail
+set -o xtrace
 
 readonly YAML_REPO_ROOT=${1:?"First argument must be the repo root dir"}
 readonly YAML_LIST_FILE=${2:?"Second argument must be the output file"}
@@ -65,6 +66,4 @@ echo "Building Knative Eventing Operator"
 ko resolve ${KO_YAML_FLAGS} -f config/ > "${EVENTING_OPERATOR_YAML}"
 
 # List generated YAML files. We have only one eventing-operator.yaml so far.
-
 ls -1 ${EVENTING_OPERATOR_YAML} > ${YAML_LIST_FILE}
-ls -1 ${YAML_OUTPUT_DIR}/*.yaml | grep -v ${EVENTING_OPERATOR_YAML} >> ${YAML_LIST_FILE}
