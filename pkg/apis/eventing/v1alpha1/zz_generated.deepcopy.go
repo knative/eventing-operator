@@ -56,7 +56,7 @@ func (in *Eventing) DeepCopyObject() runtime.Object {
 func (in *EventingList) DeepCopyInto(out *EventingList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]Eventing, len(*in))
