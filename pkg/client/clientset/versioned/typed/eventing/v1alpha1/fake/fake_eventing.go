@@ -131,7 +131,7 @@ func (c *FakeEventings) DeleteCollection(options *v1.DeleteOptions, listOptions 
 // Patch applies the patch and returns the patched eventing.
 func (c *FakeEventings) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Eventing, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(eventingsResource, c.ns, name, data, subresources...), &v1alpha1.Eventing{})
+		Invokes(testing.NewPatchSubresourceAction(eventingsResource, c.ns, name, pt, data, subresources...), &v1alpha1.Eventing{})
 
 	if obj == nil {
 		return nil, err
