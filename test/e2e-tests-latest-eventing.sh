@@ -62,6 +62,8 @@ function generate_latest_eventing_manifest() {
   # Download the source code of knative eventing
   git clone https://github.com/knative/eventing.git
   cd eventing
+  COMMIT_ID=$(git rev-parse --verify HEAD)
+  echo ">> The latest commit ID of Knative Eventing is ${COMMIT_ID}."
   mkdir -p output
 
   # Generate the manifest
