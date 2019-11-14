@@ -25,7 +25,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
-              value: "knative-serving-operator"
+              value: "knative-eventing-operator"
             - name: SYSTEM_NAMESPACE
               valueFrom:
                 fieldRef:
