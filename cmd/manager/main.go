@@ -20,9 +20,9 @@ import (
 	"log"
 
 	"k8s.io/client-go/tools/clientcmd"
+	"knative.dev/eventing-operator/pkg/reconciler/knativeeventing"
 	"knative.dev/pkg/injection/sharedmain"
 	"knative.dev/pkg/signals"
-	"knative.dev/eventing-operator/pkg/reconciler/knativeeventing"
 )
 
 func main() {
@@ -32,5 +32,5 @@ func main() {
 	if err != nil {
 		log.Fatal("Error building kubeconfig", err)
 	}
-	sharedmain.MainWithConfig(signals.NewContext(), "eventing-operator", cfg, knativeeventing.NewController)
+	sharedmain.MainWithConfig(signals.NewContext(), "eventing_operator", cfg, knativeeventing.NewController)
 }
