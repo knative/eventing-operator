@@ -25,8 +25,7 @@ sure the [prerequisites](#Prerequisites) are installed first.
    kubectl apply -f config/
    ```
 
-1. Install the
-   [Eventing custom resource](#the-eventing-custom-resource)
+1. Install the [Eventing custom resource](#the-eventing-custom-resource)
 
 ```sh
 cat <<-EOF | kubectl apply -f -
@@ -51,9 +50,9 @@ build your own image.
 The installation of Knative Eventing is triggered by the creation of a
 `Eventing` custom resource (CR) as defined by
 [this CRD](config/300-eventing-v1alpha1-knativeeventing-crd.yaml). The operator
-will deploy Knative Eventing in the same namespace containing the
-`Eventing` CR, and this CR will trigger the installation, reconfiguration,
-or removal of the knative eventing resources.
+will deploy Knative Eventing in the same namespace containing the `Eventing` CR,
+and this CR will trigger the installation, reconfiguration, or removal of the
+knative eventing resources.
 
 The following are all equivalent:
 
