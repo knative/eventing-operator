@@ -28,6 +28,9 @@ import (
 	typedcorev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/tools/record"
 
+	clientset "knative.dev/eventing-operator/pkg/client/clientset/versioned"
+	eventingScheme "knative.dev/eventing-operator/pkg/client/clientset/versioned/scheme"
+	eventingclient "knative.dev/eventing-operator/pkg/client/injection/client"
 	sharedclientset "knative.dev/pkg/client/clientset/versioned"
 	sharedclient "knative.dev/pkg/client/injection/client"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
@@ -36,9 +39,6 @@ import (
 	"knative.dev/pkg/injection/clients/dynamicclient"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/logging/logkey"
-	clientset "knative.dev/eventing-operator/pkg/client/clientset/versioned"
-	eventingScheme "knative.dev/eventing-operator/pkg/client/clientset/versioned/scheme"
-	eventingclient "knative.dev/eventing-operator/pkg/client/injection/client"
 )
 
 // Base implements the core controller logic, given a Reconciler.

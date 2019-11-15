@@ -17,10 +17,11 @@ package e2e
 
 import (
 	"errors"
-	"k8s.io/apimachinery/pkg/api/meta"
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"k8s.io/apimachinery/pkg/api/meta"
 
 	mf "github.com/jcrossley3/manifestival"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
