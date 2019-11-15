@@ -46,6 +46,16 @@ EOF
 Please refer to [Building the Operator Image](#building-the-operator-image) to
 build your own image.
 
+## Prerequisites
+
+* [`ko`](https://github.com/google/ko)
+
+  Install `ko` with the following command, if it is not available on your machine:
+
+  ```
+  go get -u github.com/google/ko/cmd/ko
+  ```
+
 ## The `Eventing` Custom Resource
 
 The installation of Knative Eventing is triggered by the creation of a
@@ -58,8 +68,9 @@ or removal of the knative eventing resources.
 The following are all equivalent:
 
 ```
-kubectl get eventings.operator.knative.dev -oyaml
-kubectl get eventing -oyaml
+kubectl get eventings.operator.knative.dev
+kubectl get eventing
+kubectl get ke
 ```
 
 To uninstall Knative Eventing, simply delete the `Eventing` resource.
@@ -76,12 +87,6 @@ To build the operator with `ko`, configure your an environment variable
 `KO_DOCKER_REPO` as the docker repository to which developer images should be
 pushed (e.g. `gcr.io/[gcloud-project]`, `docker.io/[username]`,
 `quay.io/[repo-name]`, etc).
-
-Install `ko` with the following command, if it is not available on your machine:
-
-```
-go get -u github.com/google/ko/cmd/ko
-```
 
 Then, build the operator image:
 
