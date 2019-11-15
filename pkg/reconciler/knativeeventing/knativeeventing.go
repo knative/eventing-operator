@@ -19,6 +19,7 @@ package knativeeventing
 import (
 	"context"
 	"reflect"
+
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/api/equality"
 
@@ -31,12 +32,12 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/tools/cache"
 
-	"knative.dev/pkg/controller"
 	eventingv1alpha1 "knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 	listers "knative.dev/eventing-operator/pkg/client/listers/eventing/v1alpha1"
 	"knative.dev/eventing-operator/pkg/reconciler"
 	"knative.dev/eventing-operator/pkg/reconciler/knativeeventing/common"
 	"knative.dev/eventing-operator/version"
+	"knative.dev/pkg/controller"
 )
 
 var (

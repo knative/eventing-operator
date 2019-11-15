@@ -17,8 +17,8 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	duckv1beta1 "knative.dev/pkg/apis/duck/v1beta1"
 	"knative.dev/pkg/apis"
+	duckv1beta1 "knative.dev/pkg/apis/duck/v1beta1"
 )
 
 // +genclient
@@ -80,5 +80,5 @@ const (
 	EventingConditionReady = apis.ConditionReady
 
 	// InstallSucceeded is set when the Knative Eventing is installed.
-	InstallSucceeded     apis.ConditionType = "InstallSucceeded"
+	InstallSucceeded apis.ConditionType = "InstallSucceeded"
 )

@@ -16,9 +16,10 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"testing"
+
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"testing"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -60,8 +61,8 @@ func TestKnativeEventingStatusGetCondition(t *testing.T) {
 func TestKnativeEventingStatusEventingInstalled(t *testing.T) {
 	ke := &EventingStatus{}
 	mc := &apis.Condition{
-		Type:    InstallSucceeded,
-		Status:  corev1.ConditionTrue,
+		Type:   InstallSucceeded,
+		Status: corev1.ConditionTrue,
 	}
 	ke.MarkEventingInstalled()
 	if diff := cmp.Diff(mc, ke.GetCondition(InstallSucceeded), cmpopts.IgnoreFields(apis.Condition{}, "LastTransitionTime")); diff != "" {

@@ -23,12 +23,12 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
-	deploymentinformer "knative.dev/pkg/client/injection/kube/informers/apps/v1/deployment"
-	"knative.dev/pkg/configmap"
-	"knative.dev/pkg/controller"
 	"knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 	knativeEventinginformer "knative.dev/eventing-operator/pkg/client/injection/informers/eventing/v1alpha1/eventing"
 	rbase "knative.dev/eventing-operator/pkg/reconciler"
+	deploymentinformer "knative.dev/pkg/client/injection/kube/informers/apps/v1/deployment"
+	"knative.dev/pkg/configmap"
+	"knative.dev/pkg/controller"
 )
 
 const (
