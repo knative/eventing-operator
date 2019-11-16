@@ -47,9 +47,10 @@ build your own image.
 
 ## Prerequisites
 
-* [`ko`](https://github.com/google/ko)
+- [`ko`](https://github.com/google/ko)
 
-  Install `ko` with the following command, if it is not available on your machine:
+  Install `ko` with the following command, if it is not available on your
+  machine:
 
   ```
   go get -u github.com/google/ko/cmd/ko
