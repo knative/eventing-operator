@@ -17,25 +17,20 @@ package version
 
 import (
 	mf "github.com/jcrossley3/manifestival"
-	"knative.dev/eventing-operator/test/e2e"
 	"path/filepath"
 	"runtime"
 	"testing"
 )
 
 func TestManifestVersionSame(t *testing.T) {
-	clients := e2e.Setup(t)
-
 	_, b, _, _ := runtime.Caller(0)
-	m, err := mf.NewManifest(filepath.Join((filepath.Dir(b)+"/.."), "cmd/manager/kodata/knative-eventing/"), false, clients.Config)
+	resources, err := mf.Parse(filepath.Join(filepath.Dir(b)+"/..", "cmd/manager/kodata/knative-eventing/"), false)
 	if err != nil {
 		t.Fatal("Failed to load manifest", err)
 	}
 
 	// example: v0.10.1
 	expectedLabelValue := "v" + Version
-
-	resources := m.Resources
 
 	for _, resource := range resources {
 		v, found := resource.GetLabels()["eventing.knative.dev/release"]
