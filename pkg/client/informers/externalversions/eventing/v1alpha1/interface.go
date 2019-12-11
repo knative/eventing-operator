@@ -24,10 +24,10 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// Eventings returns a EventingInformer.
-	Eventings() EventingInformer
 	// KEVersionControllers returns a KEVersionControllerInformer.
 	KEVersionControllers() KEVersionControllerInformer
+	// KnativeEventings returns a KnativeEventingInformer.
+	KnativeEventings() KnativeEventingInformer
 }
 
 type version struct {
@@ -41,9 +41,9 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// Eventings returns a EventingInformer.
-func (v *version) Eventings() EventingInformer {
-	return &eventingInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// KnativeEventings returns a KnativeEventingInformer.
+func (v *version) KnativeEventings() KnativeEventingInformer {
+	return &knativeEventingInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // KEVersionControllers returns a KEVersionControllerInformer.

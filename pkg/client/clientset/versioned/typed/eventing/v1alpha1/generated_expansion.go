@@ -18,6 +18,6 @@ limitations under the License.
 
 package v1alpha1
 
-type EventingExpansion interface{}
+type KnativeEventingExpansion interface{}
 
 type KEVersionControllerExpansion interface{}

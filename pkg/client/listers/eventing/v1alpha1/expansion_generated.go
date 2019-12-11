@@ -18,13 +18,13 @@ limitations under the License.
 
 package v1alpha1
 
-// EventingListerExpansion allows custom methods to be added to
-// EventingLister.
-type EventingListerExpansion interface{}
+// KnativeEventingListerExpansion allows custom methods to be added to
+// KnativeEventingLister.
+type KnativeEventingListerExpansion interface{}
 
-// EventingNamespaceListerExpansion allows custom methods to be added to
-// EventingNamespaceLister.
-type EventingNamespaceListerExpansion interface{}
+// KnativeEventingNamespaceListerExpansion allows custom methods to be added to
+// KnativeEventingNamespaceLister.
+type KnativeEventingNamespaceListerExpansion interface{}
 
 // KEVersionControllerListerExpansion allows custom methods to be added to
 // KEVersionControllerLister.

@@ -48,7 +48,7 @@ var (
 type Reconciler struct {
 	*reconciler.Base
 	// Listers index properties about resources
-	knativeEventingLister listers.EventingLister
+	knativeEventingLister listers.KnativeEventingLister
 	config                mf.Manifest
 	eventings             sets.String
 }
@@ -67,7 +67,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 		return nil
 	}
 	// Get the KnativeEventing resource with this namespace/name.
-	original, err := r.knativeEventingLister.Eventings(namespace).Get(name)
+	original, err := r.knativeEventingLister.KnativeEventings(namespace).Get(name)
 	if apierrs.IsNotFound(err) {
 		// The resource was deleted
 		r.eventings.Delete(key)
@@ -201,7 +201,7 @@ func (r *Reconciler) checkDeployments(manifest *mf.Manifest, ke *eventingv1alpha
 }
 
 func (r *Reconciler) updateStatus(desired *eventingv1alpha1.KnativeEventing) (*eventingv1alpha1.KnativeEventing, error) {
-	ke, err := r.KnativeEventingClientSet.OperatorV1alpha1().Eventings(desired.Namespace).Get(desired.Name, metav1.GetOptions{})
+	ke, err := r.KnativeEventingClientSet.OperatorV1alpha1().KnativeEventings(desired.Namespace).Get(desired.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -212,5 +212,5 @@ func (r *Reconciler) updateStatus(desired *eventingv1alpha1.KnativeEventing) (*e
 	// Don't modify the informers copy
 	existing := ke.DeepCopy()
 	existing.Status = desired.Status
-	return r.KnativeEventingClientSet.OperatorV1alpha1().Eventings(desired.Namespace).UpdateStatus(existing)
+	return r.KnativeEventingClientSet.OperatorV1alpha1().KnativeEventings(desired.Namespace).UpdateStatus(existing)
 }

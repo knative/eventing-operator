@@ -26,7 +26,7 @@ import (
 
 type OperatorV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	EventingsGetter
+    KnativeEventingsGetter
 	KEVersionControllersGetter
 }
 
@@ -35,8 +35,8 @@ type OperatorV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *OperatorV1alpha1Client) Eventings(namespace string) EventingInterface {
-	return newEventings(c, namespace)
+func (c *OperatorV1alpha1Client) KnativeEventings(namespace string) KnativeEventingInterface {
+	return newKnativeEventings(c, namespace)
 }
 
 func (c *OperatorV1alpha1Client) KEVersionControllers(namespace string) KEVersionControllerInterface {

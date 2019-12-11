@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// knativeserving.go provides methods to perform actions on the KnativeServing resource.
+// knativeserving.go provides methods to perform actions on the KnativeEventing resource.
 
 package resources
 
@@ -41,12 +41,12 @@ const (
 	Timeout = 5 * time.Minute
 )
 
-// WaitForKnativeEventingState polls the status of the KnativeServing called name
+// WaitForKnativeEventingState polls the status of the KnativeEventing called name
 // from client every `interval` until `inState` returns `true` indicating it
 // is done, returns an error or timeout.
-func WaitForKnativeEventingState(clients eventingv1alpha1.EventingInterface, name string,
+func WaitForKnativeEventingState(clients eventingv1alpha1.KnativeEventingInterface, name string,
 	inState func(s *v1alpha1.KnativeEventing, err error) (bool, error)) (*v1alpha1.KnativeEventing, error) {
-	span := logging.GetEmitableSpan(context.Background(), fmt.Sprintf("WaitForKnativeEventingState/%s/%s", name, "KnativeServingIsReady"))
+	span := logging.GetEmitableSpan(context.Background(), fmt.Sprintf("WaitForKnativeEventingState/%s/%s", name, "KnativeEventingIsReady"))
 	defer span.End()
 
 	var lastState *v1alpha1.KnativeEventing
@@ -61,8 +61,8 @@ func WaitForKnativeEventingState(clients eventingv1alpha1.EventingInterface, nam
 	return lastState, nil
 }
 
-// CreateKnativeEventing creates a KnativeServing with the name names.KnativeServing under the namespace names.Namespace.
-func CreateKnativeEventing(clients eventingv1alpha1.EventingInterface, names test.ResourceNames) (*v1alpha1.KnativeEventing, error) {
+// CreateKnativeEventing creates a KnativeEventingServing with the name names.KnativeEventing under the namespace names.Namespace.
+func CreateKnativeEventing(clients eventingv1alpha1.KnativeEventingInterface, names test.ResourceNames) (*v1alpha1.KnativeEventing, error) {
 	ks := &v1alpha1.KnativeEventing{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      names.KnativeEventing,
@@ -73,7 +73,7 @@ func CreateKnativeEventing(clients eventingv1alpha1.EventingInterface, names tes
 	return svc, err
 }
 
-// IsKnativeEventingReady will check the status conditions of the KnativeServing and return true if the KnativeServing is ready.
+// IsKnativeEventingReady will check the status conditions of the KnativeEventing and return true if the KnativeEventing is ready.
 func IsKnativeEventingReady(s *v1alpha1.KnativeEventing, err error) (bool, error) {
 	return s.Status.IsReady(), err
 }

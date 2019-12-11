@@ -53,11 +53,10 @@ func (f *genericInformer) Lister() cache.GenericLister {
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
 	// Group=operator.knative.dev, Version=v1alpha1
-	case v1alpha1.SchemeGroupVersion.WithResource("eventings"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Operator().V1alpha1().Eventings().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("knativeeventings"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Operator().V1alpha1().KnativeEventings().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("keversioncontrollers"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Operator().V1alpha1().KEVersionControllers().Informer()}, nil
-
 	}
 
 	return nil, fmt.Errorf("no informer found for %v", resource)
