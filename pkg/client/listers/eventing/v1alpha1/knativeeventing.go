@@ -25,56 +25,56 @@ import (
 	v1alpha1 "knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 )
 
-// EventingLister helps list Eventings.
-type EventingLister interface {
-	// List lists all Eventings in the indexer.
+// KnativeEventingLister helps list KnativeEventings.
+type KnativeEventingLister interface {
+	// List lists all KnativeEventings in the indexer.
 	List(selector labels.Selector) (ret []*v1alpha1.KnativeEventing, err error)
-	// Eventings returns an object that can list and get Eventings.
-	Eventings(namespace string) EventingNamespaceLister
-	EventingListerExpansion
+	// KnativeEventings returns an object that can list and get KnativeEventings.
+	KnativeEventings(namespace string) KnativeEventingNamespaceLister
+	KnativeEventingListerExpansion
 }
 
-// eventingLister implements the EventingLister interface.
-type eventingLister struct {
+// knativeEventingLister implements the KnativeEventingLister interface.
+type knativeEventingLister struct {
 	indexer cache.Indexer
 }
 
-// NewEventingLister returns a new EventingLister.
-func NewEventingLister(indexer cache.Indexer) EventingLister {
-	return &eventingLister{indexer: indexer}
+// NewKnativeEventingLister returns a new KnativeEventingLister.
+func NewKnativeEventingLister(indexer cache.Indexer) KnativeEventingLister {
+	return &knativeEventingLister{indexer: indexer}
 }
 
-// List lists all Eventings in the indexer.
-func (s *eventingLister) List(selector labels.Selector) (ret []*v1alpha1.KnativeEventing, err error) {
+// List lists all KnativeEventings in the indexer.
+func (s *knativeEventingLister) List(selector labels.Selector) (ret []*v1alpha1.KnativeEventing, err error) {
 	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
 		ret = append(ret, m.(*v1alpha1.KnativeEventing))
 	})
 	return ret, err
 }
 
-// Eventings returns an object that can list and get Eventings.
-func (s *eventingLister) Eventings(namespace string) EventingNamespaceLister {
-	return eventingNamespaceLister{indexer: s.indexer, namespace: namespace}
+// KnativeEventings returns an object that can list and get KnativeEventings.
+func (s *knativeEventingLister) KnativeEventings(namespace string) KnativeEventingNamespaceLister {
+	return knativeEventingNamespaceLister{indexer: s.indexer, namespace: namespace}
 }
 
-// EventingNamespaceLister helps list and get Eventings.
-type EventingNamespaceLister interface {
-	// List lists all Eventings in the indexer for a given namespace.
+// KnativeEventingNamespaceLister helps list and get KnativeEventings.
+type KnativeEventingNamespaceLister interface {
+	// List lists all KnativeEventings in the indexer for a given namespace.
 	List(selector labels.Selector) (ret []*v1alpha1.KnativeEventing, err error)
 	// Get retrieves the KnativeEventing from the indexer for a given namespace and name.
 	Get(name string) (*v1alpha1.KnativeEventing, error)
-	EventingNamespaceListerExpansion
+	KnativeEventingNamespaceListerExpansion
 }
 
-// eventingNamespaceLister implements the EventingNamespaceLister
+// knativeEventingNamespaceLister implements the KnativeEventingNamespaceLister
 // interface.
-type eventingNamespaceLister struct {
+type knativeEventingNamespaceLister struct {
 	indexer   cache.Indexer
 	namespace string
 }
 
-// List lists all Eventings in the indexer for a given namespace.
-func (s eventingNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1.KnativeEventing, err error) {
+// List lists all KnativeEventings in the indexer for a given namespace.
+func (s knativeEventingNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1.KnativeEventing, err error) {
 	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
 		ret = append(ret, m.(*v1alpha1.KnativeEventing))
 	})
@@ -82,13 +82,13 @@ func (s eventingNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1
 }
 
 // Get retrieves the KnativeEventing from the indexer for a given namespace and name.
-func (s eventingNamespaceLister) Get(name string) (*v1alpha1.KnativeEventing, error) {
+func (s knativeEventingNamespaceLister) Get(name string) (*v1alpha1.KnativeEventing, error) {
 	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
 	if err != nil {
 		return nil, err
 	}
 	if !exists {
-		return nil, errors.NewNotFound(v1alpha1.Resource(v1alpha1.ResourceName), name)
+		return nil, errors.NewNotFound(v1alpha1.Resource("knativeeventing"), name)
 	}
 	return obj.(*v1alpha1.KnativeEventing), nil
 }
