@@ -5,9 +5,10 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/go-logr/zapr"
+	"github.com/jcrossley3/manifestival/patch"
 	"github.com/operator-framework/operator-sdk/pkg/restmapper"
 	"go.uber.org/zap"
-	"k8s.io/apimachinery/pkg/api/equality"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -22,6 +23,9 @@ func SetLogger(l logr.Logger) {
 	log = l.WithName("manifestival")
 }
 
+// Manifestival allows group application of a set of Kubernetes resources
+// (typically, a set of YAML files, aka a manifest) against a Kubernetes
+// apiserver.
 type Manifestival interface {
 	// Either updates or creates all resources in the manifest
 	ApplyAll() error
@@ -37,6 +41,8 @@ type Manifestival interface {
 	Transform(fns ...Transformer) (*Manifest, error)
 }
 
+// Manifest tracks a set of concrete resources which should be managed as a
+// group using a Kubernetes client provided by `NewManifest`.
 type Manifest struct {
 	Resources []unstructured.Unstructured
 	client    dynamic.Interface
@@ -45,6 +51,10 @@ type Manifest struct {
 
 var _ Manifestival = &Manifest{}
 
+// NewManifest creates a Manifest from a comma-separated set of yaml files or
+// directories (and subdirectories if the `recursive` option is set). The
+// Manifest will be evaluated using the supplied `config` against a particular
+// Kubernetes apiserver.
 func NewManifest(pathname string, recursive bool, config *rest.Config) (Manifest, error) {
 	log.Info("Reading manifest", "name", pathname)
 	resources, err := Parse(pathname, recursive)
@@ -62,6 +72,7 @@ func NewManifest(pathname string, recursive bool, config *rest.Config) (Manifest
 	return Manifest{Resources: resources, client: client, mapper: mapper}, nil
 }
 
+// ApplyAll updates or creates all resources in the manifest.
 func (f *Manifest) ApplyAll() error {
 	for _, spec := range f.Resources {
 		if err := f.Apply(&spec); err != nil {
@@ -71,6 +82,8 @@ func (f *Manifest) ApplyAll() error {
 	return nil
 }
 
+// Apply updates or creates a particular resource, which does not need to be
+// part of `Resources`, and will not be tracked.
 func (f *Manifest) Apply(spec *unstructured.Unstructured) error {
 	current, err := f.Get(spec)
 	if err != nil {
@@ -82,14 +95,22 @@ func (f *Manifest) Apply(spec *unstructured.Unstructured) error {
 	}
 	if current == nil {
 		logResource("Creating", spec)
+		annotate(spec, v1.LastAppliedConfigAnnotation, patch.MakeLastAppliedConfig(spec))
 		annotate(spec, "manifestival", resourceCreated)
-		if _, err = resource.Create(spec.DeepCopy(), metav1.CreateOptions{}); err != nil {
+		if _, err = resource.Create(spec, metav1.CreateOptions{}); err != nil {
 			return err
 		}
 	} else {
-		// Update existing one
-		if UpdateChanged(spec.UnstructuredContent(), current.UnstructuredContent()) {
-			logResource("Updating", spec)
+		patch, err := patch.NewPatch(spec, current)
+		if err != nil {
+			return err
+		}
+		if patch.IsRequired() {
+			log.Info("Merging", "diff", patch)
+			if err := patch.Merge(current); err != nil {
+				return err
+			}
+			logResource("Updating", current)
 			if _, err = resource.Update(current, metav1.UpdateOptions{}); err != nil {
 				return err
 			}
@@ -98,6 +119,7 @@ func (f *Manifest) Apply(spec *unstructured.Unstructured) error {
 	return nil
 }
 
+// DeleteAll removes all tracked `Resources` in the Manifest.
 func (f *Manifest) DeleteAll(opts *metav1.DeleteOptions) error {
 	a := make([]unstructured.Unstructured, len(f.Resources))
 	copy(a, f.Resources)
@@ -115,6 +137,8 @@ func (f *Manifest) DeleteAll(opts *metav1.DeleteOptions) error {
 	return nil
 }
 
+// Delete removes the specified objects, which do not need to be registered as
+// `Resources` in the Manifest.
 func (f *Manifest) Delete(spec *unstructured.Unstructured, opts *metav1.DeleteOptions) error {
 	current, err := f.Get(spec)
 	if current == nil && err == nil {
@@ -134,6 +158,8 @@ func (f *Manifest) Delete(spec *unstructured.Unstructured, opts *metav1.DeleteOp
 	return nil
 }
 
+// Get collects a full resource body (or `nil`) from a partial resource
+// supplied in `spec`.
 func (f *Manifest) Get(spec *unstructured.Unstructured) (*unstructured.Unstructured, error) {
 	resource, err := f.ResourceInterface(spec)
 	if err != nil {
@@ -149,6 +175,7 @@ func (f *Manifest) Get(spec *unstructured.Unstructured) (*unstructured.Unstructu
 	return result, err
 }
 
+// ResourceInterface returns an interface appropriate for the spec
 func (f *Manifest) ResourceInterface(spec *unstructured.Unstructured) (dynamic.ResourceInterface, error) {
 	gvk := spec.GroupVersionKind()
 	mapping, err := f.mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
@@ -159,35 +186,6 @@ func (f *Manifest) ResourceInterface(spec *unstructured.Unstructured) (dynamic.R
 		return f.client.Resource(mapping.Resource), nil
 	}
 	return f.client.Resource(mapping.Resource).Namespace(spec.GetNamespace()), nil
-}
-
-// We need to preserve some target keys, specifically
-// 'metadata.resourceVersion' and 'spec.clusterIP'. So we only
-// overwrite fields set in our src resource.
-// TODO: Use Patch instead
-func UpdateChanged(src, tgt map[string]interface{}) bool {
-	changed := false
-	for k, v := range src {
-		// Special case for ConfigMaps
-		if k == "data" && !equality.Semantic.DeepEqual(v, tgt[k]) {
-			tgt[k], changed = v, true
-			continue
-		}
-		if v, ok := v.(map[string]interface{}); ok {
-			if tgt[k] == nil {
-				tgt[k], changed = v, true
-			} else if UpdateChanged(v, tgt[k].(map[string]interface{})) {
-				// This could be an issue if a field in a nested src
-				// map doesn't overwrite its corresponding tgt
-				changed = true
-			}
-			continue
-		}
-		if !equality.Semantic.DeepEqual(v, tgt[k]) {
-			tgt[k], changed = v, true
-		}
-	}
-	return changed
 }
 
 func logResource(msg string, spec *unstructured.Unstructured) {
