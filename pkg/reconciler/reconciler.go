@@ -31,8 +31,6 @@ import (
 	clientset "knative.dev/eventing-operator/pkg/client/clientset/versioned"
 	eventingScheme "knative.dev/eventing-operator/pkg/client/clientset/versioned/scheme"
 	eventingclient "knative.dev/eventing-operator/pkg/client/injection/client"
-	sharedclientset "knative.dev/pkg/client/istio/clientset/versioned"
-	//sharedclient "knative.dev/pkg/client/injection/client"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
@@ -45,9 +43,6 @@ import (
 type Base struct {
 	// KubeClientSet allows us to talk to the k8s for core APIs
 	KubeClientSet kubernetes.Interface
-
-	// SharedClientSet allows us to configure shared objects
-	SharedClientSet sharedclientset.Interface
 
 	// EventingClientSet allows us to configure Eventing objects
 	KnativeEventingClientSet clientset.Interface
@@ -102,7 +97,6 @@ func NewBase(ctx context.Context, controllerAgentName string, cmw configmap.Watc
 
 	base := &Base{
 		KubeClientSet:            kubeClient,
-		//SharedClientSet:          sharedclient.Get(ctx),
 		KnativeEventingClientSet: eventingclient.Get(ctx),
 		DynamicClientSet:         dynamicclient.Get(ctx),
 		ConfigMapWatcher:         cmw,
