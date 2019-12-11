@@ -61,7 +61,7 @@ build your own image.
 The installation of Knative Eventing is triggered by the creation of a
 `KnativeEventing` custom resource (CR) as defined by
 [this CRD](config/300-eventing-v1alpha1-knativeeventing-crd.yaml). The operator
-will deploy Knative Eventing in the same namespace containing the 
+will deploy Knative Eventing in the same namespace containing the
 `KnativeEventing` CR, and this CR will trigger the installation, reconfiguration,
 or removal of the knative eventing resources.
 
@@ -75,7 +75,7 @@ kubectl get knativeeventing
 To uninstall Knative Eventing, simply delete the `KnativeEventing` resource.
 
 ```
-kubectl delete ke --all
+kubectl delete knativeeventings --all
 ```
 
 Pass `--help` for further details on the various subcommands
