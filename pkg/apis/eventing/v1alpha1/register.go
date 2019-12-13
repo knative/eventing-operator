@@ -40,7 +40,9 @@ func Resource(resource string) schema.GroupResource {
 func addKnownTypes(s *runtime.Scheme) error {
 	s.AddKnownTypes(SchemeGroupVersion,
 		&Eventing{},
-		&EventingList{})
+		&EventingList{},
+		&KEVersionController{},
+		&KEVersionControllerList{},)
 	metav1.AddToGroupVersion(s, SchemeGroupVersion)
 	return nil
 }

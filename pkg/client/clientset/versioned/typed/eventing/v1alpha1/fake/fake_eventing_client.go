@@ -32,6 +32,10 @@ func (c *FakeOperatorV1alpha1) Eventings(namespace string) v1alpha1.EventingInte
 	return &FakeEventings{c, namespace}
 }
 
+func (c *FakeOperatorV1alpha1) KEVersionControllers(namespace string) v1alpha1.KEVersionControllerInterface {
+	return &FakeKEVersionControllers{c, namespace}
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeOperatorV1alpha1) RESTClient() rest.Interface {

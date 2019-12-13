@@ -25,3 +25,11 @@ type EventingListerExpansion interface{}
 // EventingNamespaceListerExpansion allows custom methods to be added to
 // EventingNamespaceLister.
 type EventingNamespaceListerExpansion interface{}
+
+// KEVersionControllerListerExpansion allows custom methods to be added to
+// KEVersionControllerLister.
+type KEVersionControllerListerExpansion interface{}
+
+// KEVersionControllerNamespaceListerExpansion allows custom methods to be added to
+// KEVersionControllerNamespaceLister.
+type KEVersionControllerNamespaceListerExpansion interface{}

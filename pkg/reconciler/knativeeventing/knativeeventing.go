@@ -86,6 +86,13 @@ func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 	// Don't modify the informers copy.
 	knativeEventing := original.DeepCopy()
 
+	if knativeEventing.Status.Version != "" && knativeEventing.Status.Version != version.Version {
+		r.Logger.Infof("The version of the CR %s does not match the current version %s. Please consider" +
+			"upgrading to the current version %s, or downgrading the operator to the version %s", knativeEventing.Status.Version,
+			version.Version, version.Version, knativeEventing.Status.Version)
+		return nil
+	}
+
 	// Reconcile this copy of the Eventing resource and then write back any status
 	// updates regardless of whether the reconciliation errored out.
 	reconcileErr := r.reconcile(ctx, knativeEventing)

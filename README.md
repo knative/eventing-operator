@@ -42,6 +42,24 @@ metadata:
 EOF
 ```
 
+```sh
+cat <<-EOF | kubectl apply -f -
+apiVersion: v1
+kind: Namespace
+metadata:
+ name: knative-eventing
+---
+apiVersion: operator.knative.dev/v1alpha1
+kind: KEVersionController
+metadata:
+  name: ke-version-controller
+  namespace: knative-eventing
+spec:
+  source-version: 0.11.0
+  target-version: 0.10.0
+EOF
+```
+
 Please refer to [Building the Operator Image](#building-the-operator-image) to
 build your own image.
 

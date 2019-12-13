@@ -36,6 +36,10 @@ required = [
   version = "kubernetes-1.15.3"
 
 [[override]]
+  name = "k8s.io/apiextensions-apiserver"
+  version = "kubernetes-1.15.3"
+
+[[override]]
   name = "knative.dev/pkg"
   branch = "release-0.11"
 

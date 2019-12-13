@@ -26,6 +26,8 @@ import (
 type Interface interface {
 	// Eventings returns a EventingInformer.
 	Eventings() EventingInformer
+	// KEVersionControllers returns a KEVersionControllerInformer.
+	KEVersionControllers() KEVersionControllerInformer
 }
 
 type version struct {
@@ -42,4 +44,9 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 // Eventings returns a EventingInformer.
 func (v *version) Eventings() EventingInformer {
 	return &eventingInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// KEVersionControllers returns a KEVersionControllerInformer.
+func (v *version) KEVersionControllers() KEVersionControllerInformer {
+	return &kEVersionControllerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
