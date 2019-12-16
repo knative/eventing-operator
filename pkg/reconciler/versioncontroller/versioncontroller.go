@@ -121,12 +121,13 @@ func (r *Reconciler) reconcile(ctx context.Context, keVerController *eventingv1a
 		}
 
 		// 2. Get the version of the new CR, and use it as the target CR.
-		var eventing *eventingv1alpha1.Eventing
+		var eventing *eventingv1alpha1.KnativeEventing
 		var newCRExist = true
-		eventing, e := r.KnativeEventingClientSet.OperatorV1alpha1().Eventings(keVerController.Namespace).Get("knative-eventing", metav1.GetOptions{})
+		eventing, e := r.KnativeEventingClientSet.OperatorV1alpha1().KnativeEventings(keVerController.Namespace).Get("knative-eventing", metav1.GetOptions{})
 		if apierrs.IsNotFound(e) {
 			// The CR in the new version does not exist, so create one.
-			eventing = &eventingv1alpha1.Eventing{
+			r.Logger.Info("Prepare to create the new CR in the current version ", version.Version)
+			eventing = &eventingv1alpha1.KnativeEventing{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "knative-eventing",
 					Namespace: keVerController.Namespace,
@@ -142,22 +143,22 @@ func (r *Reconciler) reconcile(ctx context.Context, keVerController *eventingv1a
 		err = upgrade.UpgradeCR(keVerController.Spec.SourceVersion, version.Version,
 			object, eventing)
 		if err != nil {
-			return fmt.Errorf("Failed to upgrade the CR.")
+			return err
 		}
 		// 4. Create or update the new CR after the conversion for upgrade.
 		r.Logger.Info("Update or create the CR in the new version ", version.Version)
 		if newCRExist {
-			_, e = r.KnativeEventingClientSet.OperatorV1alpha1().Eventings(keVerController.Namespace).UpdateStatus(eventing)
+			_, e = r.KnativeEventingClientSet.OperatorV1alpha1().KnativeEventings(keVerController.Namespace).UpdateStatus(eventing)
 			if e != nil {
 				return fmt.Errorf("Failed to update the version of the CR to the new version")
 			} else {
-				_, e = r.KnativeEventingClientSet.OperatorV1alpha1().Eventings(keVerController.Namespace).Update(eventing)
+				_, e = r.KnativeEventingClientSet.OperatorV1alpha1().KnativeEventings(keVerController.Namespace).Update(eventing)
 				if e != nil {
 					return fmt.Errorf("Failed to update the CR to the new version")
 				}
 			}
 		} else {
-			_, e = r.KnativeEventingClientSet.OperatorV1alpha1().Eventings(keVerController.Namespace).Create(eventing)
+			_, e = r.KnativeEventingClientSet.OperatorV1alpha1().KnativeEventings(keVerController.Namespace).Create(eventing)
 			if e != nil {
 				return fmt.Errorf("Failed to creating the CR of Knative Eventing in the new version")
 			}
@@ -166,7 +167,7 @@ func (r *Reconciler) reconcile(ctx context.Context, keVerController *eventingv1a
 	} else if (keVerController.Spec.SourceVersion == version.Version || keVerController.Spec.SourceVersion == "") &&
 		keVerController.Spec.TargetVersion < version.Version {
 		// 1. Get the current CR.
-		eventing, e := r.KnativeEventingClientSet.OperatorV1alpha1().Eventings(keVerController.Namespace).Get("knative-eventing", metav1.GetOptions{})
+		eventing, e := r.KnativeEventingClientSet.OperatorV1alpha1().KnativeEventings(keVerController.Namespace).Get("knative-eventing", metav1.GetOptions{})
 		if apierrs.IsNotFound(e) {
 			// The CR in the new version does not exist, so there is no need to downgrade.
 			r.Logger.Infof("The Knative Eventing CR does not exist. You can directly install the older version" +

@@ -18,20 +18,18 @@ package upgrade
 
 import (
 	"errors"
-
-	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/client-go/kubernetes/scheme"
 	eventingv1alpha1 "knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 	"knative.dev/eventing-operator/pkg/reconciler/versioncontroller/oldschema"
 )
 
-func UpgradeCR(sourceVersion, targetVersion string, uobject *unstructured.Unstructured, target *eventingv1alpha1.Eventing) error {
+func UpgradeCR(sourceVersion, targetVersion string, uobject *unstructured.Unstructured, target *eventingv1alpha1.KnativeEventing) error {
 	switch sourceVersion {
 	case "0.10.0":
 		// Convert the old CR based on the information in the spec. If the spec is empty, no need to do anything.
 		err := Convert10To11(uobject, target)
 		if err != nil {
-			err := errors.New("The old CR can not be converted.")
 			return err
 		}
 	case targetVersion:
@@ -43,17 +41,16 @@ func UpgradeCR(sourceVersion, targetVersion string, uobject *unstructured.Unstru
 	return nil
 }
 
-func Convert10To11(uobject *unstructured.Unstructured, target *eventingv1alpha1.Eventing) error {
+func Convert10To11(uobject *unstructured.Unstructured, target *eventingv1alpha1.KnativeEventing) error {
 	// Keep the old schema, and convert the unstructured into the old version of CR.
 	oldEventing := &oldschema.Eventing{}
 	err := scheme.Scheme.Convert(uobject, oldEventing, nil)
 	if err != nil {
-		err := errors.New("The old CR can not be converted.")
 		return err
 	}
 
 	// Verify whether the spec is empty for CR in 0.10.0.
-	if (oldEventing.Spec == eventingv1alpha1.EventingSpec{})  {
+	if (oldEventing.Spec != oldschema.EventingSpec{})  {
 		err := errors.New("The old CR is in bad format, since the spec is not empty.")
 		return err
 	}

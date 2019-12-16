@@ -20,6 +20,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"knative.dev/eventing-operator/pkg/reconciler/versioncontroller/oldschema"
 )
 
 const (
@@ -51,7 +52,9 @@ func addKnownTypes(s *runtime.Scheme) error {
 		&KEVersionController{},
 		&KEVersionControllerList{},
 		&KnativeEventing{},
-		&KnativeEventingList{})
+		&KnativeEventingList{},
+		&oldschema.Eventing{},
+		&oldschema.EventingList{})
 	metav1.AddToGroupVersion(s, SchemeGroupVersion)
 	return nil
 }

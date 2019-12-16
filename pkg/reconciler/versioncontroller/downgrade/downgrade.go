@@ -26,11 +26,11 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	eventingv1alpha1 "knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 	"knative.dev/eventing-operator/pkg/reconciler/versioncontroller/oldschema"
+	eventingv1alpha1 "knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 )
 
-func DowngradeCR(targetVersion string, source *eventingv1alpha1.Eventing,
+func DowngradeCR(targetVersion string, source *eventingv1alpha1.KnativeEventing,
 	target *unstructured.Unstructured, dynamicClientSet dynamic.Interface) (schema.GroupVersionResource, error) {
 	switch targetVersion {
 	case "0.10.0":
@@ -61,7 +61,7 @@ func DowngradeCR(targetVersion string, source *eventingv1alpha1.Eventing,
 	return schema.GroupVersionResource{}, nil
 }
 
-func Convert11To10(source *eventingv1alpha1.Eventing, target *unstructured.Unstructured) (schema.GroupVersionResource, error) {
+func Convert11To10(source *eventingv1alpha1.KnativeEventing, target *unstructured.Unstructured) (schema.GroupVersionResource, error) {
 
 	oldEventing := &oldschema.Eventing{
 		ObjectMeta: metav1.ObjectMeta{
@@ -71,7 +71,7 @@ func Convert11To10(source *eventingv1alpha1.Eventing, target *unstructured.Unstr
 	}
 
 	// Verify whether the spec is empty for CR in 0.11.0.
-	if (source.Spec != eventingv1alpha1.EventingSpec{})  {
+	if (source.Spec != eventingv1alpha1.KnativeEventingSpec{})  {
 		err := errors.New("The old CR is in bad format, since the spec is not empty.")
 		return schema.GroupVersionResource{}, err
 	}

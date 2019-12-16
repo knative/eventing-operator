@@ -23,18 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	eventingv1alpha1 "knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 )
-
-// The following versions of Knative eventing operators use this schema for the custom resource:
-// * 0.10.0
-type Eventing struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec   eventingv1alpha1.EventingSpec   `json:"spec,omitempty"`
-	Status eventingv1alpha1.EventingStatus `json:"status,omitempty"`
-}
 
 const (
 	GroupName = "operator.knative.dev"

@@ -2,6 +2,7 @@ package manifestival
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/go-logr/logr"
 	"github.com/go-logr/zapr"
@@ -101,6 +102,13 @@ func (f *Manifest) Apply(spec *unstructured.Unstructured) error {
 			return err
 		}
 	} else {
+		if len(current.GetOwnerReferences()) == 1 {
+			if !strings.EqualFold(current.GetOwnerReferences()[0].String(), spec.GetOwnerReferences()[0].String()) {
+				current.SetOwnerReferences(nil)
+			}
+		} else if len(current.GetOwnerReferences()) > 1 {
+			current.SetOwnerReferences(nil)
+	    }
 		patch, err := patch.NewPatch(spec, current)
 		if err != nil {
 			return err
