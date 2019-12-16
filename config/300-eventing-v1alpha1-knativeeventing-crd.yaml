@@ -9,8 +9,6 @@ spec:
     listKind: KnativeEventingList
     plural: knativeeventings
     singular: knativeeventing
-    shortNames:
-    - ke
   scope: Namespaced
   subresources:
     status: {}
