@@ -22,11 +22,11 @@ import (
 )
 
 func TestRegisterHelpers(t *testing.T) {
-	if got, want := Resource(Kind), Kind + "." + GroupName; got.String() != want {
+	if got, want := Resource(Kind), Kind+"."+GroupName; got.String() != want {
 		t.Errorf("Resource(PodAutoscaler) = %v, want %v", got.String(), want)
 	}
 
-	if got, want := SchemeGroupVersion.String(), GroupName + "/" + SchemaVersion; got != want {
+	if got, want := SchemeGroupVersion.String(), GroupName+"/"+SchemaVersion; got != want {
 		t.Errorf("SchemeGroupVersion() = %v, want %v", got, want)
 	}
 
