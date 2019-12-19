@@ -19,10 +19,12 @@ set -o nounset
 set -o pipefail
 
 if [ -z "${GOPATH:-}" ]; then
-  export GOPATH=$(go env GOPATH)
+  GOPATH="$(go env GOPATH)"
+  export GOPATH
 fi
 
-source $(dirname $0)/../vendor/knative.dev/test-infra/scripts/library.sh
+# shellcheck disable=SC1090
+source "$(dirname "$0")/../vendor/knative.dev/test-infra/scripts/library.sh"
 
 CODEGEN_PKG=${CODEGEN_PKG:-$(cd ${REPO_ROOT_DIR}; ls -d -1 ./vendor/k8s.io/code-generator 2>/dev/null || echo ../code-generator)}
 

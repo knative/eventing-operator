@@ -27,47 +27,47 @@ var eventingCondSet = apis.NewLivingConditionSet(
 	InstallSucceeded,
 )
 
-// GroupVersionKind returns SchemeGroupVersion of an Eventing
-func (e *Eventing) GroupVersionKind() schema.GroupVersionKind {
-	return SchemeGroupVersion.WithKind("Eventing")
+// GroupVersionKind returns SchemeGroupVersion of an KnativeEventing
+func (e *KnativeEventing) GroupVersionKind() schema.GroupVersionKind {
+	return SchemeGroupVersion.WithKind(Kind)
 }
 
 // GetCondition returns the current condition of a given condition type
-func (es *EventingStatus) GetCondition(t apis.ConditionType) *apis.Condition {
+func (es *KnativeEventingStatus) GetCondition(t apis.ConditionType) *apis.Condition {
 	return eventingCondSet.Manage(es).GetCondition(t)
 }
 
-// InitializeConditions initializes conditions of an EventingStatus
-func (es *EventingStatus) InitializeConditions() {
+// InitializeConditions initializes conditions of an KnativeEventingStatus
+func (es *KnativeEventingStatus) InitializeConditions() {
 	eventingCondSet.Manage(es).InitializeConditions()
 }
 
-// MarkEventingInstalled set InstallSucceeded in EventingStatus as true
-func (es *EventingStatus) MarkEventingInstalled() {
+// MarkEventingInstalled set InstallSucceeded in KnativeEventingStatus as true
+func (es *KnativeEventingStatus) MarkEventingInstalled() {
 	eventingCondSet.Manage(es).MarkTrue(InstallSucceeded)
 }
 
 // IsReady looks at the conditions and if the Status has a condition
 // EventingConditionReady returns true if ConditionStatus is True
-func (es *EventingStatus) IsReady() bool {
+func (es *KnativeEventingStatus) IsReady() bool {
 	return eventingCondSet.Manage(es).IsHappy()
 }
 
-// MarkEventingReady marks the Eventing status as ready
-func (es *EventingStatus) MarkEventingReady() {
+// MarkEventingReady marks the KnativeEventing status as ready
+func (es *KnativeEventingStatus) MarkEventingReady() {
 	eventingCondSet.Manage(es).MarkTrue(EventingConditionReady)
 }
 
-// MarkEventingNotReady marks the Eventing status as ready == Unknown
-func (es *EventingStatus) MarkEventingNotReady(reason, message string) {
+// MarkEventingNotReady marks the KnativeEventing status as ready == Unknown
+func (es *KnativeEventingStatus) MarkEventingNotReady(reason, message string) {
 	eventingCondSet.Manage(es).MarkUnknown(EventingConditionReady, reason, message)
 }
 
-// MarkEventingFailed marks the Eventing status as failed
-func (es *EventingStatus) MarkEventingFailed(reason, message string) {
+// MarkEventingFailed marks the KnativeEventing status as failed
+func (es *KnativeEventingStatus) MarkEventingFailed(reason, message string) {
 	eventingCondSet.Manage(es).MarkFalse(EventingConditionReady, reason, message)
 }
 
-func (es *EventingStatus) duck() *duckv1beta1.Status {
+func (es *KnativeEventingStatus) duck() *duckv1beta1.Status {
 	return &es.Status
 }

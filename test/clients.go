@@ -85,10 +85,10 @@ func newKnativeEventingAlphaClients(cfg *rest.Config) (eventingv1alpha1.Operator
 	return cs.OperatorV1alpha1(), nil
 }
 
-func (c *Clients) KnativeEventing() eventingv1alpha1.EventingInterface {
-	return c.Eventing.Eventings(EventingOperatorNamespace)
+func (c *Clients) KnativeEventing() eventingv1alpha1.KnativeEventingInterface {
+	return c.Eventing.KnativeEventings(EventingOperatorNamespace)
 }
 
-func (c *Clients) KnativeEventingAll() eventingv1alpha1.EventingInterface {
-	return c.Eventing.Eventings(metav1.NamespaceAll)
+func (c *Clients) KnativeEventingAll() eventingv1alpha1.KnativeEventingInterface {
+	return c.Eventing.KnativeEventings(metav1.NamespaceAll)
 }

@@ -24,14 +24,14 @@ import (
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// Eventing is the Schema for the eventings API
+// KnativeEventing is the Schema for the eventings API
 // +k8s:openapi-gen=true
-type Eventing struct {
+type KnativeEventing struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   EventingSpec   `json:"spec,omitempty"`
-	Status EventingStatus `json:"status,omitempty"`
+	Spec   KnativeEventingSpec   `json:"spec,omitempty"`
+	Status KnativeEventingStatus `json:"status,omitempty"`
 }
 
 // Registry defines image overrides of knative images.
@@ -51,14 +51,14 @@ type Registry struct {
 	Override map[string]string `json:"override,omitempty"`
 }
 
-// EventingSpec defines the desired state of Eventing
+// KnativeEventingSpec defines the desired state of KnativeEventing
 // +k8s:openapi-gen=true
-type EventingSpec struct {
+type KnativeEventingSpec struct {
 }
 
-// EventingStatus defines the observed state of Eventing
+// KnativeEventingStatus defines the observed state of KnativeEventing
 // +k8s:openapi-gen=true
-type EventingStatus struct {
+type KnativeEventingStatus struct {
 	duckv1beta1.Status `json:",inline"`
 
 	// The version of the installed release
@@ -68,17 +68,17 @@ type EventingStatus struct {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// EventingList contains a list of Eventing
-type EventingList struct {
+// KnativeEventingList contains a list of KnativeEventing
+type KnativeEventingList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Eventing `json:"items"`
+	Items           []KnativeEventing `json:"items"`
 }
 
 const (
-	// EventingConditionReady is set when the Eventing Operator is installed, configured and ready.
+	// EventingConditionReady is set when the KnativeEventing Operator is installed, configured and ready.
 	EventingConditionReady = apis.ConditionReady
 
-	// InstallSucceeded is set when the Knative Eventing is installed.
+	// InstallSucceeded is set when the Knative KnativeEventing is installed.
 	InstallSucceeded apis.ConditionType = "InstallSucceeded"
 )
