@@ -1,6 +1,9 @@
 # The OWNERS file is used by prow to automatically merge approved PRs.
 
 approvers:
-- n3wscott
-- houshengbo
 - matzew
+- n3wscott
+# Operations WG leads
+- bbrowning
+- houshengbo
+- k4leung4
