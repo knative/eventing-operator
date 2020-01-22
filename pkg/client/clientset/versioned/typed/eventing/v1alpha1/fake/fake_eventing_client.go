@@ -1,5 +1,5 @@
 /*
-Copyright 2019 The Knative Authors
+Copyright 2020 The Knative Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,6 +26,10 @@ import (
 
 type FakeOperatorV1alpha1 struct {
 	*testing.Fake
+}
+
+func (c *FakeOperatorV1alpha1) Eventings(namespace string) v1alpha1.EventingInterface {
+	return &FakeEventings{c, namespace}
 }
 
 func (c *FakeOperatorV1alpha1) KnativeEventings(namespace string) v1alpha1.KnativeEventingInterface {
