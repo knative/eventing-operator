@@ -1,5 +1,5 @@
 /*
-Copyright 2019 The Knative Authors
+Copyright 2020 The Knative Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -53,6 +53,8 @@ func (f *genericInformer) Lister() cache.GenericLister {
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
 	// Group=operator.knative.dev, Version=v1alpha1
+	case v1alpha1.SchemeGroupVersion.WithResource("eventings"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Operator().V1alpha1().Eventings().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("knativeeventings"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Operator().V1alpha1().KnativeEventings().Informer()}, nil
 
