@@ -105,3 +105,7 @@ output of the above `ko publish` command.
 The image should match what's in [config/operator.yaml](config/operator.yaml)
 and the `$VERSION` should match [version.go](version/version.go) and correspond
 to the contents of [config/](config/).
+
+## Upgrade
+
+Please refer to the [upgrade guide](doc/upgrade_guide.md) for a safe upgrade process.
