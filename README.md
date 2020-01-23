@@ -1,5 +1,10 @@
 # Knative Eventing Operator
 
+[![Go Report Card](https://goreportcard.com/badge/knative/eventing-operator)](https://goreportcard.com/report/knative/eventing-operator)
+[![Releases](https://img.shields.io/github/release-pre/knative/eventing-operator.svg)](https://github.com/knative/eventing-operator/releases)
+[![LICENSE](https://img.shields.io/github/license/knative/eventing-operator.svg)](https://github.com/knative/eventing-operator/blob/master/LICENSE)
+[![Slack Status](https://img.shields.io/badge/slack-join_chat-white.svg?logo=slack&style=social)](https://knative.slack.com)
+
 Knative Eventing Operator is a project aiming to deploy and manage Knative
 Eventing in an automated way.
 
