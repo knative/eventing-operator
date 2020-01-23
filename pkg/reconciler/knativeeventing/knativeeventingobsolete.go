@@ -52,7 +52,7 @@ func (r *ReconcilerObsolete) Reconcile(ctx context.Context, key string) error {
 	// Get the obsolete Eventing resource with this namespace/name.
 	original, err := r.knativeEventingObsoleteLister.Eventings(namespace).Get(name)
 	if apierrs.IsNotFound(err) {
-		r.Logger.Info("No need to convert the CR of the old version, sicne the old CR does not exist")
+		r.Logger.Info("No need to convert the CR of the old version, since the old CR does not exist")
 		return nil
 
 	} else if err != nil {
