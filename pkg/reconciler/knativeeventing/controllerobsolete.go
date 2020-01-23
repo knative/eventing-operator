@@ -17,9 +17,9 @@ import (
 	"context"
 
 	eventinginformerObsolete "knative.dev/eventing-operator/pkg/client/injection/informers/eventing/v1alpha1/eventing"
+	rbase "knative.dev/eventing-operator/pkg/reconciler"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
-	rbase "knative.dev/eventing-operator/pkg/reconciler"
 )
 
 const (
@@ -33,8 +33,8 @@ func NewControllerObsolete(
 	ctx context.Context,
 	cmw configmap.Watcher,
 ) *controller.Impl {
-	c := &ReconcilerObsolete {
-		Base:                  rbase.NewBase(ctx, controllerAgentNameObsolete, cmw),
+	c := &ReconcilerObsolete{
+		Base: rbase.NewBase(ctx, controllerAgentNameObsolete, cmw),
 	}
 
 	knativeEventingInformerObsolete := eventinginformerObsolete.Get(ctx)

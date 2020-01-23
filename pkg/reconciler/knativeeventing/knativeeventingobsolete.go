@@ -19,14 +19,14 @@ package knativeeventing
 import (
 	"context"
 
-	"k8s.io/client-go/tools/cache"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/tools/cache"
 
 	"knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 	listers "knative.dev/eventing-operator/pkg/client/listers/eventing/v1alpha1"
-	"knative.dev/pkg/controller"
 	"knative.dev/eventing-operator/pkg/reconciler"
+	"knative.dev/pkg/controller"
 )
 
 // ReconcilerObsolete implements controller.Reconciler for Eventing resources of the version 0.11.0 or prior.
@@ -61,8 +61,7 @@ func (r *ReconcilerObsolete) Reconcile(ctx context.Context, key string) error {
 	}
 
 	// Check whether the current KnativeEventing resource exists
-	if knativeEventings, errorKE := r.KnativeEventingClientSet.OperatorV1alpha1().KnativeEventings(namespace).List(metav1.ListOptions{});
-		!apierrs.IsNotFound(errorKE) && len(knativeEventings.Items) != 0 {
+	if knativeEventings, errorKE := r.KnativeEventingClientSet.OperatorV1alpha1().KnativeEventings(namespace).List(metav1.ListOptions{}); !apierrs.IsNotFound(errorKE) && len(knativeEventings.Items) != 0 {
 		// We already have a converted CR or a new CR, so abort it.
 		return nil
 	} else {
@@ -73,16 +72,15 @@ func (r *ReconcilerObsolete) Reconcile(ctx context.Context, key string) error {
 		if len(knativeEventingObsolete.GetFinalizers()) > 0 {
 			r.Logger.Info("Removing finalizers for old CR")
 			knativeEventingObsolete.SetFinalizers(nil)
-			if _, err := r.KnativeEventingClientSet.OperatorV1alpha1().Eventings(namespace).Update(knativeEventingObsolete);
-				err != nil {
+			if _, err := r.KnativeEventingClientSet.OperatorV1alpha1().Eventings(namespace).Update(knativeEventingObsolete); err != nil {
 				return err
 			}
 		}
 
 		// Create the latest CR from the current (previous) CR. Since the old spec in the CR is empty, there is nothing
 		// we need to copy from the old CR.
-		latest := &v1alpha1.KnativeEventing {
-			ObjectMeta: metav1.ObjectMeta {
+		latest := &v1alpha1.KnativeEventing{
+			ObjectMeta: metav1.ObjectMeta{
 				Name:      knativeEventingObsolete.Name,
 				Namespace: knativeEventingObsolete.Namespace,
 			},
