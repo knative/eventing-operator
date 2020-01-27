@@ -108,4 +108,5 @@ to the contents of [config/](config/).
 
 ## Upgrade
 
-Please refer to the [upgrade guide](doc/upgrade_guide.md) for a safe upgrade process.
+Please refer to the [upgrade guide](doc/upgrade_guide.md) for a safe upgrade
+process.
