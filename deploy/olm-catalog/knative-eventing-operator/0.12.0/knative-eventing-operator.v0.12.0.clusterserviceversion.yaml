@@ -154,6 +154,7 @@ spec:
   - email: knative-dev@googlegroups.com
     name: The Knative Authors
   maturity: alpha
+  minKubeVersion: 1.15.0
   provider:
     name: The Knative Authors
   replaces: knative-eventing-operator.v0.11.0
