@@ -31,6 +31,7 @@ func (platforms Platforms) Transformers(kubeClientSet kubernetes.Interface, inst
 	result := []mf.Transformer{
 		mf.InjectOwner(instance),
 		mf.InjectNamespace(instance.GetNamespace()),
+		DeploymentTransform(instance, log),
 	}
 	for _, fn := range platforms {
 		transformer, err := fn(kubeClientSet, log)
