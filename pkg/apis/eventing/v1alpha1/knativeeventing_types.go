@@ -52,7 +52,7 @@ type Registry struct {
 	Override map[string]string `json:"override,omitempty"`
 
 	// A list of secrets to be used when pulling the knative images. The secret must be created in the
-	// same namespace as the knative-serving deployments, and not the namespace of this resource.
+	// same namespace as the knative-eventing deployments, and not the namespace of this resource.
 	// +optional
 	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
 }

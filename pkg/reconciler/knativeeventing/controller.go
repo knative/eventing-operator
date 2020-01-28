@@ -16,13 +16,14 @@ package knativeeventing
 import (
 	"context"
 	"flag"
-	"knative.dev/pkg/injection/sharedmain"
 	"os"
 	"path/filepath"
 
 	mf "github.com/manifestival/manifestival"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/tools/cache"
+
+	"knative.dev/pkg/injection/sharedmain"
 	"knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 	knativeEventinginformer "knative.dev/eventing-operator/pkg/client/injection/informers/eventing/v1alpha1/knativeeventing"
 	rbase "knative.dev/eventing-operator/pkg/reconciler"
