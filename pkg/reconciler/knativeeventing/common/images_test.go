@@ -1,5 +1,5 @@
 /*
-Copyright 2019 The Knative Authors
+Copyright 2020 The Knative Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,8 +24,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/scheme"
-	caching "knative.dev/caching/pkg/apis/caching/v1alpha1"
-	servingv1alpha1 "knative.dev/serving-operator/pkg/apis/serving/v1alpha1"
+	eventingv1alpha1 "knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 
 	appsv1 "k8s.io/api/apps/v1"
 )
@@ -33,7 +32,7 @@ import (
 type updateDeploymentImageTest struct {
 	name       string
 	containers []corev1.Container
-	registry   servingv1alpha1.Registry
+	registry   eventingv1alpha1.Registry
 	expected   []string
 }
 
@@ -42,9 +41,9 @@ var updateDeploymentImageTests = []updateDeploymentImageTest{
 		name: "UsesNameFromDefault",
 		containers: []corev1.Container{{
 			Name:  "queue",
-			Image: "gcr.io/knative-releases/github.com/knative/serving/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45"},
+			Image: "gcr.io/knative-releases/github.com/knative/eventing/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45"},
 		},
-		registry: servingv1alpha1.Registry{
+		registry: eventingv1alpha1.Registry{
 			Default: "new-registry.io/test/path/${NAME}:new-tag",
 		},
 		expected: []string{"new-registry.io/test/path/queue:new-tag"},
@@ -61,7 +60,7 @@ var updateDeploymentImageTests = []updateDeploymentImageTest{
 				Image: "gcr.io/cmd/queue:test",
 			},
 		},
-		registry: servingv1alpha1.Registry{
+		registry: eventingv1alpha1.Registry{
 			Override: map[string]string{
 				"container1": "new-registry.io/test/path/new-container-1:new-tag",
 				"container2": "new-registry.io/test/path/new-container-2:new-tag",
@@ -76,9 +75,9 @@ var updateDeploymentImageTests = []updateDeploymentImageTest{
 		name: "UsesOverrideFromDefault",
 		containers: []corev1.Container{{
 			Name:  "queue",
-			Image: "gcr.io/knative-releases/github.com/knative/serving/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45"},
+			Image: "gcr.io/knative-releases/github.com/knative/eventing/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45"},
 		},
-		registry: servingv1alpha1.Registry{
+		registry: eventingv1alpha1.Registry{
 			Default: "new-registry.io/test/path/${NAME}:new-tag",
 			Override: map[string]string{
 				"queue": "new-registry.io/test/path/new-value:new-override-tag",
@@ -92,7 +91,7 @@ var updateDeploymentImageTests = []updateDeploymentImageTest{
 			Name:  "image",
 			Image: "docker.io/name/image:tag2"},
 		},
-		registry: servingv1alpha1.Registry{
+		registry: eventingv1alpha1.Registry{
 			Override: map[string]string{
 				"Unused": "new-registry.io/test/path",
 			},
@@ -103,10 +102,10 @@ var updateDeploymentImageTests = []updateDeploymentImageTest{
 		name: "NoChange",
 		containers: []corev1.Container{{
 			Name:  "queue",
-			Image: "gcr.io/knative-releases/github.com/knative/serving/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45"},
+			Image: "gcr.io/knative-releases/github.com/knative/eventing/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45"},
 		},
-		registry: servingv1alpha1.Registry{},
-		expected: []string{"gcr.io/knative-releases/github.com/knative/serving/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45"},
+		registry: eventingv1alpha1.Registry{},
+		expected: []string{"gcr.io/knative-releases/github.com/knative/eventing/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45"},
 	},
 }
 
@@ -119,8 +118,8 @@ func TestDeploymentTransform(t *testing.T) {
 }
 func runDeploymentTransformTest(t *testing.T, tt *updateDeploymentImageTest) {
 	unstructuredDeployment := makeUnstructured(t, makeDeployment(t, tt.name, corev1.PodSpec{Containers: tt.containers}))
-	instance := &servingv1alpha1.KnativeServing{
-		Spec: servingv1alpha1.KnativeServingSpec{
+	instance := &eventingv1alpha1.KnativeEventing{
+		Spec: eventingv1alpha1.KnativeEventingSpec{
 			Registry: tt.registry,
 		},
 	}
@@ -163,86 +162,10 @@ func makeUnstructured(t *testing.T, obj interface{}) unstructured.Unstructured {
 	return result
 }
 
-type updateImageSpecTest struct {
-	name     string
-	in       string
-	registry servingv1alpha1.Registry
-	expected caching.ImageSpec
-}
-
-var updateImageSpecTests = []updateImageSpecTest{
-	{
-		name: "UsesNameFromDefault",
-		in:   "gcr.io/knative-releases/github.com/knative/serving/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45",
-		registry: servingv1alpha1.Registry{
-			Default: "new-registry.io/test/path/${NAME}:new-tag",
-		},
-		expected: caching.ImageSpec{
-			Image: "new-registry.io/test/path/UsesNameFromDefault:new-tag",
-		},
-	},
-	{
-		name: "AddsImagePullSecrets",
-		in:   "gcr.io/knative-releases/github.com/knative/serving/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45",
-		registry: servingv1alpha1.Registry{
-			ImagePullSecrets: []corev1.LocalObjectReference{
-				{Name: "new-secret"},
-			},
-		},
-		expected: caching.ImageSpec{
-			Image: "gcr.io/knative-releases/github.com/knative/serving/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45",
-			ImagePullSecrets: []corev1.LocalObjectReference{
-				{Name: "new-secret"},
-			},
-		},
-	},
-}
-
-func TestImageTransform(t *testing.T) {
-	for _, tt := range updateImageSpecTests {
-		t.Run(tt.name, func(t *testing.T) {
-			runImageTransformTest(t, &tt)
-		})
-	}
-}
-func runImageTransformTest(t *testing.T, tt *updateImageSpecTest) {
-	unstructuredImage := makeUnstructured(t, makeImage(t, tt))
-	instance := &servingv1alpha1.KnativeServing{
-		Spec: servingv1alpha1.KnativeServingSpec{
-			Registry: tt.registry,
-		},
-	}
-	imageTransform := ImageTransform(instance, log)
-	imageTransform(&unstructuredImage)
-	validateUnstructedImageChanged(t, tt, &unstructuredImage)
-}
-
-func validateUnstructedImageChanged(t *testing.T, tt *updateImageSpecTest, u *unstructured.Unstructured) {
-	var image = &caching.Image{}
-	err := scheme.Scheme.Convert(u, image, nil)
-	assertEqual(t, err, nil)
-	assertDeepEqual(t, image.Spec, tt.expected)
-}
-
-func makeImage(t *testing.T, tt *updateImageSpecTest) *caching.Image {
-	return &caching.Image{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "caching.internal.knative.dev/v1alpha1",
-			Kind:       "Image",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: tt.name,
-		},
-		Spec: caching.ImageSpec{
-			Image: tt.in,
-		},
-	}
-}
-
 type addImagePullSecretsTest struct {
 	name            string
 	existingSecrets []corev1.LocalObjectReference
-	registry        servingv1alpha1.Registry
+	registry        eventingv1alpha1.Registry
 	expectedSecrets []corev1.LocalObjectReference
 }
 
@@ -250,13 +173,13 @@ var addImagePullSecretsTests = []addImagePullSecretsTest{
 	{
 		name:            "LeavesSecretsEmptyByDefault",
 		existingSecrets: nil,
-		registry:        servingv1alpha1.Registry{},
+		registry:        eventingv1alpha1.Registry{},
 		expectedSecrets: nil,
 	},
 	{
 		name:            "AddsImagePullSecrets",
 		existingSecrets: nil,
-		registry: servingv1alpha1.Registry{
+		registry: eventingv1alpha1.Registry{
 			ImagePullSecrets: []corev1.LocalObjectReference{{Name: "new-secret"}},
 		},
 		expectedSecrets: []corev1.LocalObjectReference{{Name: "new-secret"}},
@@ -264,7 +187,7 @@ var addImagePullSecretsTests = []addImagePullSecretsTest{
 	{
 		name:            "SupportsMultipleImagePullSecrets",
 		existingSecrets: nil,
-		registry: servingv1alpha1.Registry{
+		registry: eventingv1alpha1.Registry{
 			ImagePullSecrets: []corev1.LocalObjectReference{
 				{Name: "new-secret-1"},
 				{Name: "new-secret-2"},
@@ -278,7 +201,7 @@ var addImagePullSecretsTests = []addImagePullSecretsTest{
 	{
 		name:            "MergesAdditionalSecretsWithAnyPreexisting",
 		existingSecrets: []corev1.LocalObjectReference{{Name: "existing-secret"}},
-		registry: servingv1alpha1.Registry{
+		registry: eventingv1alpha1.Registry{
 			ImagePullSecrets: []corev1.LocalObjectReference{
 				{Name: "new-secret"},
 			},
@@ -300,8 +223,8 @@ func TestImagePullSecrets(t *testing.T) {
 
 func runImagePullSecretsTest(t *testing.T, tt *addImagePullSecretsTest) {
 	unstructuredDeployment := makeUnstructured(t, makeDeployment(t, tt.name, corev1.PodSpec{ImagePullSecrets: tt.existingSecrets}))
-	instance := &servingv1alpha1.KnativeServing{
-		Spec: servingv1alpha1.KnativeServingSpec{
+	instance := &eventingv1alpha1.KnativeEventing{
+		Spec: eventingv1alpha1.KnativeEventingSpec{
 			Registry: tt.registry,
 		},
 	}
