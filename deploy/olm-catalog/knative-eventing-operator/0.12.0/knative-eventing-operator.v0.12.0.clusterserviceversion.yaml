@@ -2,7 +2,7 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
   annotations:
-    alm-examples: '[{"apiVersion":"operator.knative.dev/v1alpha1","kind":"Eventing","metadata":{"name":"eventing"},"spec":{}},{"apiVersion":"operator.knative.dev/v1alpha1","kind":"Eventing","metadata":{"name":"eventing"},"spec":{}}]'
+    alm-examples: '[{"apiVersion":"operator.knative.dev/v1alpha1","kind":"KnativeEventing","metadata":{"name":"eventing"},"spec":{}}]'
     capabilities: Basic Install
     categories: Networking,Integration & Delivery,Cloud Provider,Developer Tools
     certified: "false"
@@ -19,7 +19,58 @@ metadata:
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
-  customresourcedefinitions: {}
+  customresourcedefinitions:
+    owned:
+      - description: Represents an installation of a particular version of Knative Eventing  (obsolete CRD)
+        displayName: Knative Eventing (obsolete)
+        kind: Eventing
+        name: eventings.operator.knative.dev
+        statusDescriptors:
+          - description: The version of Knative Eventing installed
+            displayName: Version
+            path: version
+            x-descriptors:
+              - 'urn:alm:descriptor:io.kubernetes:version'
+        version: v1alpha1
+        specDescriptors: []
+        resources:
+          - version: v1
+            kind: Deployment
+          - version: v1
+            kind: Service
+          - version: v1
+            kind: ReplicaSet
+          - version: v1
+            kind: Pod
+          - version: v1
+            kind: Secret
+          - version: v1
+            kind: ConfigMap
+      - description: Represents an installation of a particular version of Knative Eventing
+        displayName: Knative Eventing
+        kind: KnativeEventing
+        name: knativeeventings.operator.knative.dev
+        statusDescriptors:
+          - description: The version of Knative Eventing installed
+            displayName: Version
+            path: version
+            x-descriptors:
+              - 'urn:alm:descriptor:io.kubernetes:version'
+        version: v1alpha1
+        specDescriptors: []
+        resources:
+          - version: v1
+            kind: Deployment
+          - version: v1
+            kind: Service
+          - version: v1
+            kind: ReplicaSet
+          - version: v1
+            kind: Pod
+          - version: v1
+            kind: Secret
+          - version: v1
+            kind: ConfigMap
   description: |
     Knative Eventing is designed to address a common need for cloud native development:
     1. Services are loosely coupled during development and deployed independently

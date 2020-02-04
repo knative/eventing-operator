@@ -30,9 +30,9 @@ indent() {
   sed "s/^/$INDENT/" | sed "s/^${INDENT}\($1\)/${ENDASH}\1/"
 }
 
-rm -rf $DIR/.crds
+rm -rf $DIR/.crds || true
 mkdir $DIR/.crds
-find $DIR/deploy/olm-catalog -name '*.crd.yaml' | sort -n | xargs -I{} cp {} $DIR/.crds/
+find $DIR/deploy/olm-catalog -name '*-crd.yaml' | sort -n | xargs -I{} cp {} $DIR/.crds/
 
 CRD=$(cat $(ls $DIR/.crds/*) | grep -v -- "---" | indent apiVersion)
 CSV=$(cat $(find $DIR/deploy/olm-catalog -name '*version.yaml' | sort -n) | indent apiVersion)
