@@ -110,3 +110,39 @@ to the contents of [config/](config/).
 
 Please refer to the [upgrade guide](doc/upgrade_guide.md) for a safe upgrade
 process.
+
+## Operator Lifecycle Manager and OperatorHub
+
+Knative Eventing operator has the metadata in Operator Lifecycle Manager (OLM)
+checked in at `deploy/olm-catalog`. Files in there are for reference purposes
+and also for testing and tooling.
+
+In order to install the operator `CatalogSource` to a
+[cluster with OLM](https://github.com/operator-framework/operator-lifecycle-manager/blob/master/doc/install/install.md),
+run these commands:
+
+```
+OLM_NS=$(kubectl get deploy --all-namespaces | grep olm-operator | awk '{print $1}')
+./hack/generate-olm-catalog-source.sh | kubectl apply -n $OLM_NS -f -
+```
+
+Then install the operator by creating a subscription:
+
+```
+OLM_NS=$(kubectl get operatorgroups --all-namespaces | grep olm-operators | awk '{print $1}')
+OPERATOR_NS=$(kubectl get operatorgroups --all-namespaces | grep global-operators | awk '{print $1}')
+
+cat <<-EOF | kubectl apply -f -
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: knative-eventing-operator-sub
+  generateName: knative-eventing-operator-
+  namespace: $OPERATOR_NS
+spec:
+  source: knative-eventing-operator
+  sourceNamespace: $OLM_NS
+  name: knative-eventing-operator
+  channel: alpha
+EOF
+```
