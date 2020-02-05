@@ -95,12 +95,14 @@ function generate_latest_eventing_manifest() {
 # Skip installing istio as an add-on
 initialize $@ --skip-istio-addon
 
+TIMEOUT=20m
+
 # If we got this far, the operator installed Knative Eventing
 header "Running tests for Knative Eventing Operator"
 failed=0
 
-# Run the integration tests
-go_test_e2e -timeout=20m ./test/e2e || failed=1
+# Run the postupgrade tests
+go_test_e2e -tags=postupgrade -timeout=${TIMEOUT} ./test/upgrade || failed=1
 
 # Require that tests succeeded.
 (( failed )) && fail_test
