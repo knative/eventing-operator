@@ -3,6 +3,16 @@ kind: CustomResourceDefinition
 metadata:
   name: knativeeventings.operator.knative.dev
 spec:
+  additionalPrinterColumns:
+  - JSONPath: .status.version
+    name: Version
+    type: string
+  - JSONPath: .status.conditions[?(@.type=="Ready")].status
+    name: Ready
+    type: string
+  - JSONPath: .status.conditions[?(@.type=="Ready")].reason
+    name: Reason
+    type: string
   group: operator.knative.dev
   names:
     kind: KnativeEventing
