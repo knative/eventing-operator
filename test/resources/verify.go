@@ -44,16 +44,16 @@ func Setup(t *testing.T) *test.Clients {
 	return clients
 }
 
-// KnativeEventingVerify verifies if the KnativeEventing can reach the READY status.
-func KnativeEventingVerify(t *testing.T, clients *test.Clients, names test.ResourceNames) {
+// AssertKEOperatorCRReadyStatus verifies if the KnativeEventing can reach the READY status.
+func AssertKEOperatorCRReadyStatus(t *testing.T, clients *test.Clients, names test.ResourceNames) {
 	if _, err := WaitForKnativeEventingState(clients.KnativeEventing(), names.KnativeEventing,
 		IsKnativeEventingReady); err != nil {
 		t.Fatalf("KnativeService %q failed to get to the READY status: %v", names.KnativeEventing, err)
 	}
 }
 
-// DeploymentRecreation verify whether all the deployments for knative eventing are able to recreate, when they are deleted.
-func DeploymentRecreation(t *testing.T, clients *test.Clients, names test.ResourceNames) {
+// DeleteAndVerifyDeployments verify whether all the deployments for knative eventing are able to recreate, when they are deleted.
+func DeleteAndVerifyDeployments(t *testing.T, clients *test.Clients, names test.ResourceNames) {
 	dpList, err := clients.KubeClient.Kube.AppsV1().Deployments(names.Namespace).List(metav1.ListOptions{})
 	if err != nil {
 		t.Fatalf("Failed to get any deployment under the namespace %q: %v",
@@ -93,8 +93,8 @@ func DeploymentRecreation(t *testing.T, clients *test.Clients, names test.Resour
 	t.Logf("The deployment %s/%s reached the desired state.", deployment.Namespace, deployment.Name)
 }
 
-// KnativeEventingDelete deletes tha KnativeEventing to see if all resources will be deleted
-func KnativeEventingDelete(t *testing.T, clients *test.Clients, names test.ResourceNames) {
+// KEOperatorCRDelete deletes tha KnativeEventing to see if all resources will be deleted
+func KEOperatorCRDelete(t *testing.T, clients *test.Clients, names test.ResourceNames) {
 	if err := clients.KnativeEventing().Delete(names.KnativeEventing, &metav1.DeleteOptions{}); err != nil {
 		t.Fatalf("KnativeEventing %q failed to delete: %v", names.KnativeEventing, err)
 	}

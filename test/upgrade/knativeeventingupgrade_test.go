@@ -1,4 +1,4 @@
-//// +build postupgrade
+// +build postupgrade
 
 /*
 Copyright 2020 The Knative Authors
@@ -41,28 +41,30 @@ func TestKnativeEventingUpgrade(t *testing.T) {
 	defer test.TearDown(clients, names)
 
 	// Create a KnativeEventing
-	if _, err := resources.CreateKnativeEventing(clients.KnativeEventing(), names); err != nil {
+	if _, err := resources.EnsureKnativeEventingExists(clients.KnativeEventing(), names); err != nil {
 		t.Fatalf("KnativeService %q failed to create: %v", names.KnativeEventing, err)
 	}
 
 	// Test if KnativeEventing can reach the READY status
 	t.Run("create", func(t *testing.T) {
-		resources.KnativeEventingVerify(t, clients, names)
+		resources.AssertKEOperatorCRReadyStatus(t, clients, names)
+	})
+
+	// Verify if resources match the latest requirement after upgrade
+	t.Run("verify resources", func(t *testing.T) {
+		resources.AssertKEOperatorCRReadyStatus(t, clients, names)
+		// TODO: We only verify the deployment, but we need to add other resources as well, like ServiceAccount, ClusterRoleBinding, etc.
 		expectedDeployments := []string{"eventing-controller", "eventing-webhook", "imc-controller",
 			"imc-dispatcher", "broker-controller"}
 		knativeEventingVerifyDeployment(t, clients, names, expectedDeployments)
 	})
 
-	// Delete the deployments one by one to see if they will be recreated.
-	t.Run("restore", func(t *testing.T) {
-		resources.KnativeEventingVerify(t, clients, names)
-		resources.DeploymentRecreation(t, clients, names)
-	})
+	// TODO: We will add one or sections here to run the tests tagged with postupgrade in knative evening.
 
 	// Delete the KnativeEventing to see if all resources will be removed
 	t.Run("delete", func(t *testing.T) {
-		resources.KnativeEventingVerify(t, clients, names)
-		resources.KnativeEventingDelete(t, clients, names)
+		resources.AssertKEOperatorCRReadyStatus(t, clients, names)
+		resources.KEOperatorCRDelete(t, clients, names)
 	})
 }
 

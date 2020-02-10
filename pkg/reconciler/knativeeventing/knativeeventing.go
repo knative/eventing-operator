@@ -214,8 +214,7 @@ func (r *Reconciler) updateStatus(desired *eventingv1alpha1.KnativeEventing) (*e
 // Delete obsolete resources from previous versions
 func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *eventingv1alpha1.KnativeEventing) error {
 	resource := &unstructured.Unstructured{}
-
-	resource.SetNamespace("knative-eventing")
+	resource.SetNamespace(instance.GetNamespace())
 
 	// Remove old resources from 0.12
 	// https://github.com/knative/eventing-operator/issues/90

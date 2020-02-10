@@ -45,24 +45,24 @@ func TestKnativeEventingDeployment(t *testing.T) {
 	defer test.TearDown(clients, names)
 
 	// Create a KnativeEventing
-	if _, err := resources.CreateKnativeEventing(clients.KnativeEventing(), names); err != nil {
+	if _, err := resources.EnsureKnativeEventingExists(clients.KnativeEventing(), names); err != nil {
 		t.Fatalf("KnativeService %q failed to create: %v", names.KnativeEventing, err)
 	}
 
 	// Test if KnativeEventing can reach the READY status
 	t.Run("create", func(t *testing.T) {
-		resources.KnativeEventingVerify(t, clients, names)
+		resources.AssertKEOperatorCRReadyStatus(t, clients, names)
 	})
 
 	// Delete the deployments one by one to see if they will be recreated.
 	t.Run("restore", func(t *testing.T) {
-		resources.KnativeEventingVerify(t, clients, names)
-		resources.DeploymentRecreation(t, clients, names)
+		resources.AssertKEOperatorCRReadyStatus(t, clients, names)
+		resources.DeleteAndVerifyDeployments(t, clients, names)
 	})
 
 	// Delete the KnativeEventing to see if all resources will be removed
 	t.Run("delete", func(t *testing.T) {
-		resources.KnativeEventingVerify(t, clients, names)
-		resources.KnativeEventingDelete(t, clients, names)
+		resources.AssertKEOperatorCRReadyStatus(t, clients, names)
+		resources.KEOperatorCRDelete(t, clients, names)
 	})
 }
