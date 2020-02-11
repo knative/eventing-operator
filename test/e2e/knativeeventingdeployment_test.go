@@ -23,7 +23,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/meta"
 
-	mf "github.com/jcrossley3/manifestival"
+	mf "github.com/manifestival/manifestival"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
