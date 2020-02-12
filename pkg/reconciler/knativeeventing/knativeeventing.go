@@ -18,8 +18,9 @@ package knativeeventing
 
 import (
 	"context"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"reflect"
+
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/api/equality"
