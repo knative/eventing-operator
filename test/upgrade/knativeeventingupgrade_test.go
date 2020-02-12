@@ -16,13 +16,14 @@ limitations under the License.
 package e2e
 
 import (
-	"knative.dev/eventing-operator/test/client"
 	"testing"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"knative.dev/pkg/test/logstream"
 	"knative.dev/eventing-operator/test"
 	"knative.dev/eventing-operator/test/resources"
-	"knative.dev/pkg/test/logstream"
+	"knative.dev/eventing-operator/test/client"
 )
 
 // TestKnativeEventingUpgrade verifies the KnativeEventing creation, deployment recreation, and KnativeEventing deletion

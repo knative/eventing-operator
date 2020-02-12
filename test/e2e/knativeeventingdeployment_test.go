@@ -16,16 +16,10 @@ limitations under the License.
 package e2e
 
 import (
-	"knative.dev/eventing-operator/test/client"
 	"testing"
 
-	"k8s.io/apimachinery/pkg/api/meta"
-	mf "github.com/manifestival/manifestival"
-	apierrs "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/wait"
-
 	"knative.dev/eventing-operator/test"
+	"knative.dev/eventing-operator/test/client"
 	"knative.dev/eventing-operator/test/resources"
 	"knative.dev/pkg/test/logstream"
 )

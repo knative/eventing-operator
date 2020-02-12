@@ -55,11 +55,11 @@ function install_latest_operator_release() {
   header "Installing Knative Eventing operator latest public release"
   local full_url="https://github.com/knative/eventing-operator/releases/download/${LATEST_EVENTING_RELEASE_VERSION}/eventing-operator.yaml"
 
-  local RELEASE_YAML="$(mktemp)"
-  wget "${full_url}" -O "${RELEASE_YAML}" \
+  local release_yaml="$(mktemp)"
+  wget "${full_url}" -O "${release_yaml}" \
       || fail_test "Unable to download latest Knative Eventing Operator release."
 
-  kubectl apply -f "${RELEASE_YAML}" || fail_test "Knative Eventing Operator latest release installation failed"
+  kubectl apply -f "${release_yaml}" || fail_test "Knative Eventing Operator latest release installation failed"
   create_custom_resource
   wait_until_pods_running ${TEST_NAMESPACE}
 }
