@@ -28,6 +28,9 @@
 
 source $(dirname $0)/../vendor/knative.dev/test-infra/scripts/e2e-tests.sh
 
+# Latest eventing operator release.
+readonly LATEST_EVENTING_RELEASE_VERSION=$(git describe --match "v[0-9]*" --abbrev=0)
+
 OPERATOR_DIR=$(dirname $0)/..
 KNATIVE_EVENTING_DIR=${OPERATOR_DIR}/..
 
@@ -48,9 +51,37 @@ function install_eventing_operator() {
   wait_until_pods_running default || fail_test "Eventing Operator did not come up"
 }
 
+function install_latest_operator_release() {
+  header "Installing Knative Eventing operator latest public release"
+  local full_url="https://github.com/knative/eventing-operator/releases/download/${LATEST_EVENTING_RELEASE_VERSION}/eventing-operator.yaml"
+
+  local release_yaml="$(mktemp)"
+  wget "${full_url}" -O "${release_yaml}" \
+      || fail_test "Unable to download latest Knative Eventing Operator release."
+
+  kubectl apply -f "${release_yaml}" || fail_test "Knative Eventing Operator latest release installation failed"
+  create_custom_resource
+  wait_until_pods_running ${TEST_NAMESPACE}
+}
+
+function create_custom_resource() {
+  echo ">> Creating the custom resource of Knative Eventing:"
+  cat <<EOF | kubectl apply -f -
+apiVersion: operator.knative.dev/v1alpha1
+kind: KnativeEventing
+metadata:
+  name: knative-eventing
+  namespace: ${TEST_NAMESPACE}
+EOF
+}
+
 function knative_setup() {
   echo ">> Creating test namespaces"
   kubectl create namespace $TEST_NAMESPACE
+  install_latest_operator_release
+}
+
+function install_head() {
   generate_latest_eventing_manifest
   install_eventing_operator
 }
@@ -95,12 +126,16 @@ function generate_latest_eventing_manifest() {
 # Skip installing istio as an add-on
 initialize $@ --skip-istio-addon
 
+TIMEOUT=20m
+
+install_head
+
 # If we got this far, the operator installed Knative Eventing
 header "Running tests for Knative Eventing Operator"
 failed=0
 
-# Run the integration tests
-go_test_e2e -timeout=20m ./test/e2e || failed=1
+# Run the postupgrade tests
+go_test_e2e -tags=postupgrade -timeout=${TIMEOUT} ./test/upgrade || failed=1
 
 # Require that tests succeeded.
 (( failed )) && fail_test

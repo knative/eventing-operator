@@ -18,6 +18,7 @@ package knativeeventing
 
 import (
 	"context"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"reflect"
 
 	"go.uber.org/zap"
@@ -206,4 +207,51 @@ func (r *Reconciler) updateStatus(desired *eventingv1alpha1.KnativeEventing) (*e
 	existing := ke.DeepCopy()
 	existing.Status = desired.Status
 	return r.KnativeEventingClientSet.OperatorV1alpha1().KnativeEventings(desired.Namespace).UpdateStatus(existing)
+}
+
+// Delete obsolete resources from previous versions
+func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *eventingv1alpha1.KnativeEventing) error {
+	resource := &unstructured.Unstructured{}
+	resource.SetNamespace(instance.GetNamespace())
+
+	// Remove old resources from 0.12
+	// https://github.com/knative/eventing-operator/issues/90
+	// sources and controller are merged.
+	// delete removed or renamed resources.
+	resource.SetAPIVersion("v1")
+	resource.SetKind("ServiceAccount")
+	resource.SetName("eventing-source-controller")
+	if err := manifest.Delete(resource, &metav1.DeleteOptions{}); err != nil {
+		return err
+	}
+
+	resource.SetAPIVersion("rbac.authorization.k8s.io/v1")
+	resource.SetKind("ClusterRole")
+	resource.SetName("knative-eventing-source-controller")
+	if err := manifest.Delete(resource, &metav1.DeleteOptions{}); err != nil {
+		return err
+	}
+
+	resource.SetAPIVersion("rbac.authorization.k8s.io/v1")
+	resource.SetKind("ClusterRoleBinding")
+	resource.SetName("eventing-source-controller")
+	if err := manifest.Delete(resource, &metav1.DeleteOptions{}); err != nil {
+		return err
+	}
+
+	resource.SetAPIVersion("rbac.authorization.k8s.io/v1")
+	resource.SetKind("ClusterRoleBinding")
+	resource.SetName("eventing-source-controller-resolver")
+	if err := manifest.Delete(resource, &metav1.DeleteOptions{}); err != nil {
+		return err
+	}
+
+	resource.SetAPIVersion("apps/v1")
+	resource.SetKind("Deployment")
+	resource.SetName("sources-controller")
+	if err := manifest.Delete(resource, &metav1.DeleteOptions{}); err != nil {
+		return err
+	}
+
+	return nil
 }
