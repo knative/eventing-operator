@@ -19,18 +19,19 @@ import (
 	"runtime"
 	"testing"
 
-	"k8s.io/apimachinery/pkg/api/meta"
-	"k8s.io/apimachinery/pkg/util/wait"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
+
 	// Mysteriously required to support GCP auth (required by k8s libs).
 	// Apparently just importing it is enough. @_@ side effects @_@.
 	// https://github.com/kubernetes/client-go/issues/242
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	mf "github.com/manifestival/manifestival"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
-	pkgTest "knative.dev/pkg/test"
 	"knative.dev/eventing-operator/test"
+	pkgTest "knative.dev/pkg/test"
 )
 
 // Setup creates the client objects needed in the e2e tests.

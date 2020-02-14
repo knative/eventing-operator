@@ -30,10 +30,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	"knative.dev/pkg/test/logging"
 	"knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 	eventingv1alpha1 "knative.dev/eventing-operator/pkg/client/clientset/versioned/typed/eventing/v1alpha1"
 	"knative.dev/eventing-operator/test"
+	"knative.dev/pkg/test/logging"
 )
 
 const (

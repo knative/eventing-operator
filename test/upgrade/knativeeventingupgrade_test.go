@@ -20,10 +20,10 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"knative.dev/pkg/test/logstream"
 	"knative.dev/eventing-operator/test"
-	"knative.dev/eventing-operator/test/resources"
 	"knative.dev/eventing-operator/test/client"
+	"knative.dev/eventing-operator/test/resources"
+	"knative.dev/pkg/test/logstream"
 )
 
 // TestKnativeEventingUpgrade verifies the KnativeEventing creation, deployment recreation, and KnativeEventing deletion
@@ -95,4 +95,3 @@ func stringInList(a string, list []string) bool {
 	}
 	return false
 }
-
