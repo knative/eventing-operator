@@ -21,23 +21,23 @@ import (
 	"errors"
 	"testing"
 
+	mf "github.com/manifestival/manifestival"
 	"go.uber.org/zap"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	mf "github.com/manifestival/manifestival"
 
-	_ "knative.dev/pkg/client/injection/kube/client/fake"
 	"knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
+	_ "knative.dev/pkg/client/injection/kube/client/fake"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/logging/logkey"
 )
 
 var (
-	platform Platforms
+	platform    Platforms
 	platformErr Platforms
 )
 
