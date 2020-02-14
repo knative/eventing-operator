@@ -116,6 +116,7 @@ func (r *Reconciler) reconcile(ctx context.Context, ke *eventingv1alpha1.Knative
 		r.initStatus,
 		r.install,
 		r.checkDeployments,
+		r.deleteObsoleteResources,
 	}
 
 	manifest, err := r.transform(ke)
