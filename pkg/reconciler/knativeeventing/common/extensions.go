@@ -19,6 +19,7 @@ import (
 	mf "github.com/manifestival/manifestival"
 	"go.uber.org/zap"
 	"k8s.io/client-go/kubernetes"
+
 	eventingv1alpha1 "knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 )
 
@@ -31,6 +32,7 @@ func (platforms Platforms) Transformers(kubeClientSet kubernetes.Interface, inst
 	result := []mf.Transformer{
 		mf.InjectOwner(instance),
 		mf.InjectNamespace(instance.GetNamespace()),
+		DeploymentTransform(instance, log),
 	}
 	for _, fn := range platforms {
 		transformer, err := fn(kubeClientSet, log)

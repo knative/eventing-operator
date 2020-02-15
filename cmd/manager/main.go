@@ -19,7 +19,6 @@ import (
 	"flag"
 	"log"
 
-	"k8s.io/client-go/tools/clientcmd"
 	"knative.dev/eventing-operator/pkg/reconciler/knativeeventing"
 	"knative.dev/pkg/injection/sharedmain"
 	"knative.dev/pkg/signals"
@@ -28,7 +27,7 @@ import (
 func main() {
 	flag.Parse()
 
-	cfg, err := clientcmd.BuildConfigFromFlags(*knativeeventing.MasterURL, *knativeeventing.Kubeconfig)
+	cfg, err := sharedmain.GetConfig(*knativeeventing.MasterURL, *knativeeventing.Kubeconfig)
 	if err != nil {
 		log.Fatal("Error building kubeconfig", err)
 	}

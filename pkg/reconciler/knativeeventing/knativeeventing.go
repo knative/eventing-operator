@@ -18,18 +18,17 @@ package knativeeventing
 
 import (
 	"context"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"reflect"
 
-	"go.uber.org/zap"
-	"k8s.io/apimachinery/pkg/api/equality"
-
 	mf "github.com/manifestival/manifestival"
+	"go.uber.org/zap"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/errors"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/tools/cache"
 
@@ -213,8 +212,7 @@ func (r *Reconciler) updateStatus(desired *eventingv1alpha1.KnativeEventing) (*e
 // Delete obsolete resources from previous versions
 func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *eventingv1alpha1.KnativeEventing) error {
 	resource := &unstructured.Unstructured{}
-
-	resource.SetNamespace("knative-eventing")
+	resource.SetNamespace(instance.GetNamespace())
 
 	// Remove old resources from 0.12
 	// https://github.com/knative/eventing-operator/issues/90

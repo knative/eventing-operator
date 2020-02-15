@@ -26,8 +26,10 @@ import (
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
+
 	"knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 	eventingv1alpha1 "knative.dev/eventing-operator/pkg/client/clientset/versioned/typed/eventing/v1alpha1"
 	"knative.dev/eventing-operator/test"
@@ -61,16 +63,20 @@ func WaitForKnativeEventingState(clients eventingv1alpha1.KnativeEventingInterfa
 	return lastState, nil
 }
 
-// CreateKnativeEventing creates a KnativeEventingServing with the name names.KnativeEventing under the namespace names.Namespace.
-func CreateKnativeEventing(clients eventingv1alpha1.KnativeEventingInterface, names test.ResourceNames) (*v1alpha1.KnativeEventing, error) {
-	ks := &v1alpha1.KnativeEventing{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      names.KnativeEventing,
-			Namespace: names.Namespace,
-		},
+// EnsureKnativeEventingExists creates a KnativeEventingServing with the name names.KnativeEventing under the namespace names.Namespace.
+func EnsureKnativeEventingExists(clients eventingv1alpha1.KnativeEventingInterface, names test.ResourceNames) (*v1alpha1.KnativeEventing, error) {
+	// If this function is called by the upgrade tests, we only create the custom resource, if it does not exist.
+	ke, err := clients.Get(names.KnativeEventing, metav1.GetOptions{})
+	if apierrs.IsNotFound(err) {
+		ke := &v1alpha1.KnativeEventing{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      names.KnativeEventing,
+				Namespace: names.Namespace,
+			},
+		}
+		return clients.Create(ke)
 	}
-	svc, err := clients.Create(ks)
-	return svc, err
+	return ke, err
 }
 
 // IsKnativeEventingReady will check the status conditions of the KnativeEventing and return true if the KnativeEventing is ready.
