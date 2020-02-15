@@ -5,15 +5,85 @@ metadata:
   name: knative-eventing-operator
 rules:
 - apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: knative-eventing-operator-aggregated
+aggregationRule:
+  clusterRoleSelectors:
+# This (along with escalate below) allows the Operator to pick up any
+# roles that are provided to the admin of the cluster by knative eventing
+# automatically.
+  - matchExpressions:
+      - {key: eventing.knative.dev/release, operator: Exists}
+rules: [] # Rules are automatically filled in by the controller manager.
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: knative-eventing-operator
+rules:
+- apiGroups:
+  - operator.knative.dev
+  resources:
+  - '*'
+  verbs:
+  - '*'
+# Bootstrapping permissions.
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  - roles
+  verbs:
+  - create
+  - delete
+# Escalate is necessary in order to create a role using cluster role aggregation,
+# and to allow the Operator to bootstrap itself into the necessary set of
+# permissions, even as those continue to evolve upstream.
+  - escalate
+  - get
+  - list
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterrolebindings
+  - rolebindings
+  verbs:
+  - create
+  - delete
+  - list
+  - get
+  - update
+# Permissions required for Knative controller
+# infra.
+- apiGroups:
+  - apiregistration.k8s.io
+  resources:
+  - apiservices
+  verbs:
+  - update
+- apiGroups:
   - ""
   resources:
-  - pods
   - services
-  - endpoints
-  - persistentvolumeclaims
-  - events
-  - configmaps
-  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
+- apiGroups:
+  - caching.internal.knative.dev
+  resources:
+  - images
   verbs:
   - '*'
 - apiGroups:
@@ -22,42 +92,60 @@ rules:
   - namespaces
   verbs:
   - get
+  - update
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - events
+  verbs:
+  - create
+  - update
+  - patch
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
 - apiGroups:
   - apps
   resources:
   - deployments
-  - daemonsets
-  - replicasets
-  - statefulsets
   verbs:
-  - '*'
-- apiGroups:
-  - monitoring.coreos.com
-  resources:
-  - servicemonitors
-  verbs:
-  - get
   - create
+  - delete
+  - get
+  - list
+  - watch
 - apiGroups:
-  - apps
-  resourceNames:
-  - knative-eventing-operator
+  - apiregistration.k8s.io
   resources:
-  - deployments/finalizers
+  - apiservices
   verbs:
-  - update
+  - create
+  - delete
+  - get
+  - list
 - apiGroups:
-  - operator.knative.dev
+  - autoscaling
   resources:
-  - '*'
+  - horizontalpodautoscalers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+# Permissions required specifically for this Operator.
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
   verbs:
   - '*'
----
-kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: knative-eventing-operator
-rules:
-  - apiGroups: ["*"]
-    resources: ["*"]
-    verbs: ["*"]
+# Old resources that need cleaning up that are not in the knative-eventing
+# namespace.
