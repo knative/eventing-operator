@@ -48,5 +48,5 @@ required = [
   version = "kubernetes-1.16.4"
 
 [[constraint]]
-  name = "github.com/jcrossley3/manifestival"
+  name = "github.com/manifestival/manifestival"
   branch = "client-go"
