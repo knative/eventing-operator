@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 
@@ -28,6 +27,7 @@ import (
 	// Apparently just importing it is enough. @_@ side effects @_@.
 	// https://github.com/kubernetes/client-go/issues/242
 	mfc "github.com/manifestival/client-go-client"
+	mf "github.com/manifestival/manifestival"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
 	"knative.dev/eventing-operator/test"
@@ -107,24 +107,23 @@ func KEOperatorCRDelete(t *testing.T, clients *test.Clients, names test.Resource
 	if err := verifyNoKnativeEventings(clients); err != nil {
 		t.Fatal(err)
 	}
-	for _, u := range m.Resources() {
-		if u.GetKind() == "Namespace" {
-			// The namespace should be skipped, because when the CR is removed, the Manifest to be removed has
-			// been modified, since the namespace can be injected.
-			continue
-		}
+	// verify all but the CRD's and the Namespace are gone
+	for _, u := range m.Filter(mf.NotCRDs, mf.Complement(mf.ByKind("Namespace"))).Resources() {
 		waitErr := wait.PollImmediate(Interval, Timeout, func() (bool, error) {
-			gvrs, _ := meta.UnsafeGuessKindToResource(u.GroupVersionKind())
-			if _, err := clients.Dynamic.Resource(gvrs).Get(u.GetName(), metav1.GetOptions{}); apierrs.IsNotFound(err) {
+			if _, err := m.Client.Get(&u); apierrs.IsNotFound(err) {
 				return true, nil
 			}
 			return false, err
 		})
-
 		if waitErr != nil {
 			t.Fatalf("The %s %s failed to be deleted: %v", u.GetKind(), u.GetName(), waitErr)
 		}
-		t.Logf("The %s %s has been deleted.", u.GetKind(), u.GetName())
+	}
+	// verify all the CRD's remain
+	for _, u := range m.Filter(mf.JustCRDs).Resources() {
+		if _, err := m.Client.Get(&u); apierrs.IsNotFound(err) {
+			t.Fatalf("The %s CRD was deleted", u.GetName())
+		}
 	}
 }
 
