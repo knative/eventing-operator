@@ -27,7 +27,7 @@ import (
 	// Mysteriously required to support GCP auth (required by k8s libs).
 	// Apparently just importing it is enough. @_@ side effects @_@.
 	// https://github.com/kubernetes/client-go/issues/242
-	mf "github.com/manifestival/manifestival"
+	mfc "github.com/manifestival/client-go-client"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
 	"knative.dev/eventing-operator/test"
@@ -100,14 +100,14 @@ func KEOperatorCRDelete(t *testing.T, clients *test.Clients, names test.Resource
 		t.Fatalf("KnativeEventing %q failed to delete: %v", names.KnativeEventing, err)
 	}
 	_, b, _, _ := runtime.Caller(0)
-	m, err := mf.NewManifest(filepath.Join((filepath.Dir(b)+"/.."), "config/"), false, clients.Config)
+	m, err := mfc.NewManifest(filepath.Join((filepath.Dir(b)+"/.."), "config/"), clients.Config)
 	if err != nil {
 		t.Fatal("Failed to load manifest", err)
 	}
 	if err := verifyNoKnativeEventings(clients); err != nil {
 		t.Fatal(err)
 	}
-	for _, u := range m.Resources {
+	for _, u := range m.Resources() {
 		if u.GetKind() == "Namespace" {
 			// The namespace should be skipped, because when the CR is removed, the Manifest to be removed has
 			// been modified, since the namespace can be injected.

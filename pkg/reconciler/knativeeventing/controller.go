@@ -19,7 +19,7 @@ import (
 	"os"
 	"path/filepath"
 
-	mf "github.com/manifestival/manifestival"
+	mfc "github.com/manifestival/client-go-client"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/tools/cache"
 
@@ -65,7 +65,7 @@ func NewController(
 		c.Logger.Error(err, "Error building kubeconfig")
 	}
 
-	config, err := mf.NewManifest(filepath.Join(koDataDir, "knative-eventing/"), *recursive, cfg)
+	config, err := mfc.NewManifest(filepath.Join(koDataDir, "knative-eventing/"), cfg)
 	if err != nil {
 		c.Logger.Error(err, "Error creating the Manifest for knative-eventing")
 		os.Exit(1)
