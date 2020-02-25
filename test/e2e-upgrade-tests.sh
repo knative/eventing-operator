@@ -82,7 +82,7 @@ function knative_setup() {
 }
 
 function install_head() {
-  generate_latest_eventing_manifest
+  generate_latest_eventing_manifest release-0.12
   install_eventing_operator
 }
 
@@ -93,6 +93,11 @@ function generate_latest_eventing_manifest() {
   # Download the source code of knative eventing
   git clone https://github.com/knative/eventing.git
   cd eventing
+  if [[ ! -z "$1" ]]; then
+    local branch=$1
+    git fetch origin ${branch}:${branch}
+    git checkout ${branch}
+  fi
   COMMIT_ID=$(git rev-parse --verify HEAD)
   echo ">> The latest commit ID of Knative Eventing is ${COMMIT_ID}."
   mkdir -p output
