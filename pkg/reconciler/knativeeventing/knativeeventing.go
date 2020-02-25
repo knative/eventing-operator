@@ -72,7 +72,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 		// The resource was deleted
 		r.eventings.Delete(key)
 		if r.eventings.Len() == 0 {
-			r.config.DeleteAll(&metav1.DeleteOptions{})
+			r.config.Filter(mf.NotCRDs).Delete()
 		}
 		return nil
 
@@ -124,7 +124,7 @@ func (r *Reconciler) reconcile(ctx context.Context, ke *eventingv1alpha1.Knative
 	}
 
 	for _, stage := range stages {
-		if err := stage(manifest, ke); err != nil {
+		if err := stage(&manifest, ke); err != nil {
 			return err
 		}
 	}
@@ -143,18 +143,18 @@ func (r *Reconciler) initStatus(_ *mf.Manifest, ke *eventingv1alpha1.KnativeEven
 	return nil
 }
 
-func (r *Reconciler) transform(instance *eventingv1alpha1.KnativeEventing) (*mf.Manifest, error) {
+func (r *Reconciler) transform(instance *eventingv1alpha1.KnativeEventing) (mf.Manifest, error) {
 	r.Logger.Debug("Transforming manifest")
 	transforms, err := platform.Transformers(r.KubeClientSet, instance, r.Logger)
 	if err != nil {
-		return nil, err
+		return mf.Manifest{}, err
 	}
 	return r.config.Transform(transforms...)
 }
 
 func (r *Reconciler) install(manifest *mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
 	r.Logger.Debug("Installing manifest")
-	if err := manifest.ApplyAll(); err != nil {
+	if err := manifest.Apply(); err != nil {
 		ke.Status.MarkEventingFailed("Manifest Installation", err.Error())
 		return err
 	}
@@ -174,20 +174,18 @@ func (r *Reconciler) checkDeployments(manifest *mf.Manifest, ke *eventingv1alpha
 		}
 		return false
 	}
-	for _, u := range manifest.Resources {
-		if u.GetKind() == "Deployment" {
-			deployment, err := r.KubeClientSet.AppsV1().Deployments(u.GetNamespace()).Get(u.GetName(), metav1.GetOptions{})
-			if err != nil {
-				ke.Status.MarkEventingNotReady("Deployment check", err.Error())
-				if errors.IsNotFound(err) {
-					return nil
-				}
-				return err
-			}
-			if !available(deployment) {
-				ke.Status.MarkEventingNotReady("Deployment check", "The deployment is not available.")
+	for _, u := range manifest.Filter(mf.ByKind("Deployment")).Resources() {
+		deployment, err := r.KubeClientSet.AppsV1().Deployments(u.GetNamespace()).Get(u.GetName(), metav1.GetOptions{})
+		if err != nil {
+			ke.Status.MarkEventingNotReady("Deployment check", err.Error())
+			if errors.IsNotFound(err) {
 				return nil
 			}
+			return err
+		}
+		if !available(deployment) {
+			ke.Status.MarkEventingNotReady("Deployment check", "The deployment is not available.")
+			return nil
 		}
 	}
 	ke.Status.MarkEventingReady()
@@ -221,35 +219,35 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 	resource.SetAPIVersion("v1")
 	resource.SetKind("ServiceAccount")
 	resource.SetName("eventing-source-controller")
-	if err := manifest.Delete(resource, &metav1.DeleteOptions{}); err != nil {
+	if err := manifest.Client.Delete(resource); err != nil {
 		return err
 	}
 
 	resource.SetAPIVersion("rbac.authorization.k8s.io/v1")
 	resource.SetKind("ClusterRole")
 	resource.SetName("knative-eventing-source-controller")
-	if err := manifest.Delete(resource, &metav1.DeleteOptions{}); err != nil {
+	if err := manifest.Client.Delete(resource); err != nil {
 		return err
 	}
 
 	resource.SetAPIVersion("rbac.authorization.k8s.io/v1")
 	resource.SetKind("ClusterRoleBinding")
 	resource.SetName("eventing-source-controller")
-	if err := manifest.Delete(resource, &metav1.DeleteOptions{}); err != nil {
+	if err := manifest.Client.Delete(resource); err != nil {
 		return err
 	}
 
 	resource.SetAPIVersion("rbac.authorization.k8s.io/v1")
 	resource.SetKind("ClusterRoleBinding")
 	resource.SetName("eventing-source-controller-resolver")
-	if err := manifest.Delete(resource, &metav1.DeleteOptions{}); err != nil {
+	if err := manifest.Client.Delete(resource); err != nil {
 		return err
 	}
 
 	resource.SetAPIVersion("apps/v1")
 	resource.SetKind("Deployment")
 	resource.SetName("sources-controller")
-	if err := manifest.Delete(resource, &metav1.DeleteOptions{}); err != nil {
+	if err := manifest.Client.Delete(resource); err != nil {
 		return err
 	}
 

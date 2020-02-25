@@ -44,9 +44,13 @@ required = [
   version = "kubernetes-1.16.4"
 
 [[override]]
+  name = "k8s.io/api"
+  version = "kubernetes-1.16.4"
+
+[[override]]
   name = "k8s.io/client-go"
   version = "kubernetes-1.16.4"
 
 [[constraint]]
   name = "github.com/manifestival/manifestival"
-  branch = "client-go"
+  version = "v0.2.0"
