@@ -86,6 +86,8 @@ function install_head() {
   install_eventing_operator
 }
 
+# This function generates the manifest based on a branch for Knative Eventing.
+# Parameter: $1 - branch name. If it is empty, use the default master branch.
 function generate_latest_eventing_manifest() {
   # Go the directory to download the source code of knative eventing
   cd ${KNATIVE_EVENTING_DIR}
