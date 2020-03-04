@@ -25,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"knative.dev/pkg/apis"
 	duckv1beta1 "knative.dev/pkg/apis/duck/v1beta1"
+	apistest "knative.dev/pkg/apis/testing"
 )
 
 var ignoreAllButTypeAndStatus = cmpopts.IgnoreFields(
@@ -104,18 +105,17 @@ func TestKnativeEventingStatusNotReady(t *testing.T) {
 
 func TestKnativeEventingStatusReady(t *testing.T) {
 	ke := &KnativeEventingStatus{}
-	mc := &apis.Condition{
-		Type:   EventingConditionReady,
-		Status: corev1.ConditionTrue,
-	}
+	ke.InitializeConditions()
+	apistest.CheckConditionOngoing(ke, EventingConditionReady, t)
+
+	ke.MarkInstallationReady()
 	ke.MarkEventingReady()
-	if diff := cmp.Diff(mc, ke.GetCondition(EventingConditionReady), cmpopts.IgnoreFields(apis.Condition{}, "LastTransitionTime")); diff != "" {
-		t.Errorf("GetCondition refs diff (-want +got): %v", diff)
-	}
+	apistest.CheckConditionSucceeded(ke, EventingConditionReady, t)
 }
 
 func TestKnativeEventingStatusIsReady(t *testing.T) {
 	ke := &KnativeEventingStatus{}
+	ke.MarkInstallationReady()
 	ke.MarkEventingReady()
 	if diff := cmp.Diff(true, ke.IsReady()); diff != "" {
 		t.Errorf("IsReady refs diff (-want +got): %v", diff)
