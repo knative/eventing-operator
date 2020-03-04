@@ -42,11 +42,6 @@ func (es *KnativeEventingStatus) InitializeConditions() {
 	eventingCondSet.Manage(es).InitializeConditions()
 }
 
-// MarkEventingInstalled set InstallSucceeded in KnativeEventingStatus as true
-func (es *KnativeEventingStatus) MarkEventingInstalled() {
-	eventingCondSet.Manage(es).MarkTrue(InstallSucceeded)
-}
-
 // IsReady looks at the conditions and if the Status has a condition
 // EventingConditionReady returns true if ConditionStatus is True
 func (es *KnativeEventingStatus) IsReady() bool {
