@@ -120,6 +120,7 @@ func (r *Reconciler) reconcile(ctx context.Context, ke *eventingv1alpha1.Knative
 
 	manifest, err := r.transform(ke)
 	if err != nil {
+		ke.Status.MarkInstallFailed(err.Error())
 		return err
 	}
 
@@ -155,17 +156,16 @@ func (r *Reconciler) transform(instance *eventingv1alpha1.KnativeEventing) (mf.M
 func (r *Reconciler) install(manifest *mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
 	r.Logger.Debug("Installing manifest")
 	if err := manifest.Apply(); err != nil {
-		ke.Status.MarkEventingFailed("Manifest Installation", err.Error())
+		ke.Status.MarkInstallFailed(err.Error())
 		return err
 	}
 	ke.Status.Version = version.Version
-	ke.Status.MarkEventingInstalled()
+	ke.Status.MarkInstallSucceeded()
 	return nil
 }
 
 func (r *Reconciler) checkDeployments(manifest *mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
 	r.Logger.Debug("Checking deployments")
-	defer r.updateStatus(ke)
 	available := func(d *appsv1.Deployment) bool {
 		for _, c := range d.Status.Conditions {
 			if c.Type == appsv1.DeploymentAvailable && c.Status == corev1.ConditionTrue {
@@ -177,18 +177,18 @@ func (r *Reconciler) checkDeployments(manifest *mf.Manifest, ke *eventingv1alpha
 	for _, u := range manifest.Filter(mf.ByKind("Deployment")).Resources() {
 		deployment, err := r.KubeClientSet.AppsV1().Deployments(u.GetNamespace()).Get(u.GetName(), metav1.GetOptions{})
 		if err != nil {
-			ke.Status.MarkEventingNotReady("Deployment check", err.Error())
+			ke.Status.MarkDeploymentsNotReady()
 			if errors.IsNotFound(err) {
 				return nil
 			}
 			return err
 		}
 		if !available(deployment) {
-			ke.Status.MarkEventingNotReady("Deployment check", "The deployment is not available.")
+			ke.Status.MarkDeploymentsNotReady()
 			return nil
 		}
 	}
-	ke.Status.MarkEventingReady()
+	ke.Status.MarkDeploymentsAvailable()
 	return nil
 }
 
@@ -244,12 +244,32 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 		return err
 	}
 
-	resource.SetAPIVersion("apps/v1")
-	resource.SetKind("Deployment")
-	resource.SetName("sources-controller")
+	// Remove the CRD parallels.messaging.knative.dev from 0.12
+	resource.SetAPIVersion("apiextensions.k8s.io/v1beta1")
+	resource.SetKind("CustomResourceDefinition")
+	resource.SetName("parallels.messaging.knative.dev")
 	if err := manifest.Client.Delete(resource); err != nil {
 		return err
 	}
 
+	// Remove the CRD sequences.messaging.knative.dev from 0.12
+	resource.SetAPIVersion("apiextensions.k8s.io/v1beta1")
+	resource.SetKind("CustomResourceDefinition")
+	resource.SetName("sequences.messaging.knative.dev")
+	if err := manifest.Client.Delete(resource); err != nil {
+		return err
+	}
+
+	// Remove all the deployments without label with eventing.knative.dev/release=<version>
+	if depList, err := r.KubeClientSet.AppsV1().Deployments(instance.GetNamespace()).List(metav1.ListOptions{});
+		err == nil {
+		for _, dep := range depList.Items {
+			if dep.Labels["eventing.knative.dev/release"] != version.Version {
+				return r.KubeClientSet.AppsV1().Deployments(instance.GetNamespace()).Delete(dep.Name,
+					&metav1.DeleteOptions{})
+			}
+		}
+	}
 	return nil
 }
+

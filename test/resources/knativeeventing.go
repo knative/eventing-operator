@@ -40,7 +40,7 @@ const (
 	// Interval specifies the time between two polls.
 	Interval = 10 * time.Second
 	// Timeout specifies the timeout for the function PollImmediate to reach a certain status.
-	Timeout = 5 * time.Minute
+	Timeout = 2 * time.Minute
 )
 
 // WaitForKnativeEventingState polls the status of the KnativeEventing called name
@@ -52,8 +52,9 @@ func WaitForKnativeEventingState(clients eventingv1alpha1.KnativeEventingInterfa
 	defer span.End()
 
 	var lastState *v1alpha1.KnativeEventing
+	var err error
 	waitErr := wait.PollImmediate(Interval, Timeout, func() (bool, error) {
-		lastState, err := clients.Get(name, metav1.GetOptions{})
+		lastState, err = clients.Get(name, metav1.GetOptions{})
 		return inState(lastState, err)
 	})
 
@@ -89,6 +90,49 @@ func IsDeploymentAvailable(d *v1.Deployment) (bool, error) {
 	return getDeploymentStatus(d) == "True", nil
 }
 
+// WaitForKnativeEventingDeploymentState polls the status of the Knative deployments every `interval`
+// until `inState` returns `true` indicating the deployments match the desired deployments.
+func WaitForKnativeEventingDeploymentState(clients *test.Clients, namespace string, expectedDeployments []string,
+	inState func(deps *v1.DeploymentList, expectedDeployments []string, err error) (bool, error)) (*v1alpha1.KnativeEventing, error) {
+	span := logging.GetEmitableSpan(context.Background(), fmt.Sprintf("WaitForKnativeDeploymentState/%s/%s", expectedDeployments, "KnativeDeploymentIsReady"))
+	defer span.End()
+
+	var lastState *v1alpha1.KnativeEventing
+	waitErr := wait.PollImmediate(Interval, Timeout, func() (bool, error) {
+		dpList, err := clients.KubeClient.Kube.AppsV1().Deployments(namespace).List(metav1.ListOptions{})
+		return inState(dpList, expectedDeployments, err)
+	})
+
+	if waitErr != nil {
+		return lastState, waitErr
+	}
+	return lastState, nil
+}
+
+// IsKnativeEventingDeploymentReady will check the status conditions of the deployments and return true if the deployments meet the desired status.
+func IsKnativeEventingDeploymentReady(dpList *v1.DeploymentList, expectedDeployments []string, err error) (bool, error) {
+	if err != nil {
+		return false, err
+	}
+	for _, deployment := range dpList.Items {
+		// If the deployment does not have replica, skip it.
+		if *deployment.Spec.Replicas == 0 {
+			continue
+		}
+		if !stringInList(deployment.Name, expectedDeployments) {
+			errMessage := fmt.Sprintf("The deployment %v is not found in the expected list of deployment.", deployment.Name)
+			return false, errors.New(errMessage)
+		}
+		for _, c := range deployment.Status.Conditions {
+			if c.Type == v1.DeploymentAvailable && c.Status != corev1.ConditionTrue {
+				errMessage := fmt.Sprintf("The deployment %v is not ready.", deployment.Name)
+				return false, errors.New(errMessage)
+			}
+		}
+	}
+	return true, nil
+}
+
 func getDeploymentStatus(d *v1.Deployment) corev1.ConditionStatus {
 	for _, dc := range d.Status.Conditions {
 		if dc.Type == "Available" {
@@ -96,4 +140,13 @@ func getDeploymentStatus(d *v1.Deployment) corev1.ConditionStatus {
 		}
 	}
 	return "unknown"
+}
+
+func stringInList(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }

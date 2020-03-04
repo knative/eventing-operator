@@ -101,6 +101,14 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:45c41cd27a8d986998680bfc86da0bbff5fa4f90d0f446c00636c8b099028ffe"
+  name = "github.com/blang/semver"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "ba2c2ddd89069b46a7011d4106f6868f17ee1705"
+  version = "v3.6.1"
+
+[[projects]]
   digest = "1:8f5acd4d4462b5136af644d25101f0968a7a94ee90fcb2059cec5b7cc42e0b20"
   name = "github.com/census-instrumentation/opencensus-proto"
   packages = [
@@ -143,6 +151,14 @@
   version = "v0.1.0"
 
 [[projects]]
+  digest = "1:340497a512995aa69c0add901d79a2096b3449d35a44a6f1f1115091a9f8c687"
+  name = "github.com/go-logr/zapr"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "03f06a783fbb7dfaf3f629c7825480e43a7105e6"
+  version = "v0.1.1"
+
+[[projects]]
   digest = "1:2b0e6c0bea11257c646616ebd6a62be0ef2b6a0fd8210ac3caeaf57ee136123b"
   name = "github.com/gogo/protobuf"
   packages = [
@@ -152,14 +168,6 @@
   pruneopts = "NUT"
   revision = "5628607bb4c51c3157aacc3a50f0ab707582b805"
   version = "v1.3.1"
-
-[[projects]]
-  branch = "master"
-  digest = "1:e2b86e41f3d669fc36b50d31d32d22c8ac656c75aa5ea89717ce7177e134ff2a"
-  name = "github.com/golang/glog"
-  packages = ["."]
-  pruneopts = "NUT"
-  revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
   branch = "master"
@@ -322,14 +330,6 @@
   version = "v0.2.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:0e9bfc47ab9941ecc3344e580baca5deb4091177e84dd9773b48b38ec26b93d5"
-  name = "github.com/mattbaird/jsonpatch"
-  packages = ["."]
-  pruneopts = "NUT"
-  revision = "81af80346b1a01caae0cbc27fd3c1ba5b11e189f"
-
-[[projects]]
   digest = "1:5985ef4caf91ece5d54817c11ea25f182697534f8ae6521eadcd628c142ac4b6"
   name = "github.com/matttproud/golang_protobuf_extensions"
   packages = ["pbutil"]
@@ -420,14 +420,6 @@
   pruneopts = "NUT"
   revision = "6d489fc7f1d9cd890a250f3ea3431b1744b9623f"
   version = "v0.0.8"
-
-[[projects]]
-  digest = "1:7008ec21a0ce773bd21deefdb7d17fab8cb9f1ae0bc44026cdd2b658ab1582ca"
-  name = "github.com/rogpeppe/go-internal"
-  packages = ["semver"]
-  pruneopts = "NUT"
-  revision = "bc89b17ba21ce5b8a495fa55a94e3fe32ecf4ed8"
-  version = "v1.5.2"
 
 [[projects]]
   digest = "1:d0d418e1c02e6fc00259ef09d0d4f5135fc6aedac356ff0a11f4e5ef0c447270"
@@ -665,6 +657,14 @@
   revision = "9bdfabe68543c54f90421aeb9a60ef8061b5b544"
 
 [[projects]]
+  digest = "1:79c5b7c79609e7e2d0c5a6509cc5894bb8ee9c2ca6e741214f8aa4317beeea59"
+  name = "gomodules.xyz/jsonpatch"
+  packages = ["v2"]
+  pruneopts = "NUT"
+  revision = "1c2a0262323edc27502942d9727c95646b1c3cbe"
+  version = "v2.1.0"
+
+[[projects]]
   digest = "1:285d952d0e451dbf779fcf3faad3dd32eda53f55505fff6c310ba7254d160f87"
   name = "google.golang.org/api"
   packages = [
@@ -880,7 +880,18 @@
   version = "kubernetes-1.16.4"
 
 [[projects]]
-  digest = "1:1de7cbd11e58e47c8f45e9299646b01cf31647b8c99338bd848cadecfb5d874e"
+  digest = "1:d4cd0122df2a9cc11eb1c1865ede951c1db38db3e7505e9f0536a234440a6a78"
+  name = "k8s.io/apiextensions-apiserver"
+  packages = [
+    "pkg/apis/apiextensions",
+    "pkg/apis/apiextensions/v1beta1",
+  ]
+  pruneopts = "NUT"
+  revision = "ee42d6166f481443ff2894b657bc866d6145d3aa"
+  version = "v0.17.3"
+
+[[projects]]
+  digest = "1:0407022f459190d942714903691fddc2f1a27a1827d8e99afaadf34fdac7c342"
   name = "k8s.io/apimachinery"
   packages = [
     "pkg/api/equality",
@@ -922,6 +933,7 @@
     "pkg/util/sets",
     "pkg/util/sets/types",
     "pkg/util/strategicpatch",
+    "pkg/util/uuid",
     "pkg/util/validation",
     "pkg/util/validation/field",
     "pkg/util/wait",
@@ -936,7 +948,7 @@
   version = "kubernetes-1.16.4"
 
 [[projects]]
-  digest = "1:291252304ba7620f830ca8040a0fc41182c5e48bc4d7928c97e5ff83bc636566"
+  digest = "1:26e80f4304d08660126f77728697d68ef73bf6694d56683676c280a8f4b1f385"
   name = "k8s.io/client-go"
   packages = [
     "discovery",
@@ -1127,6 +1139,8 @@
     "tools/clientcmd/api",
     "tools/clientcmd/api/latest",
     "tools/clientcmd/api/v1",
+    "tools/leaderelection",
+    "tools/leaderelection/resourcelock",
     "tools/metrics",
     "tools/pager",
     "tools/record",
@@ -1213,19 +1227,20 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2d3f59daa4b479ff4e100a2e1d8fea6780040fdadc177869531fe4cc29407f55"
+  digest = "1:99dbf7ef753ca02399778c93a4ed4b689b28668317134ecd1fabeb07be70f354"
   name = "k8s.io/utils"
   packages = [
     "buffer",
     "integer",
+    "pointer",
     "trace",
   ]
   pruneopts = "NUT"
   revision = "861946025e3491219eaccb1bf693e23df70c2fa8"
 
 [[projects]]
-  branch = "release-0.12"
-  digest = "1:048b68ed41f274d9f9c663076f987bb4be938273ba13bc68088910ad634a354b"
+  branch = "release-0.13"
+  digest = "1:8bbdd103e116a4b3304233d1309d466abb3bb28522e209101a5d261b9629d71b"
   name = "knative.dev/pkg"
   packages = [
     "apis",
@@ -1248,12 +1263,14 @@
     "injection/sharedmain",
     "kmeta",
     "kmp",
+    "leaderelection",
     "logging",
     "logging/logkey",
     "metrics",
     "metrics/metricskey",
     "profiling",
     "ptr",
+    "reconciler",
     "signals",
     "system",
     "system/testing",
@@ -1271,7 +1288,7 @@
     "webhook/certificates/resources",
   ]
   pruneopts = "T"
-  revision = "b8dc5fbc6d2f4717a69d15382921a51f93ab4cbb"
+  revision = "122514b865f268704598561649e61bfb4bc41885"
 
 [[projects]]
   branch = "master"
@@ -1296,6 +1313,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/go-logr/zapr",
     "github.com/google/go-cmp/cmp",
     "github.com/google/go-cmp/cmp/cmpopts",
     "github.com/manifestival/client-go-client",

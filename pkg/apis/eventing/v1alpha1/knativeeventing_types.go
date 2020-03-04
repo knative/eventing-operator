@@ -86,9 +86,9 @@ type KnativeEventingList struct {
 }
 
 const (
-	// EventingConditionReady is set when the KnativeEventing Operator is installed, configured and ready.
-	EventingConditionReady = apis.ConditionReady
-
 	// InstallSucceeded is set when the Knative KnativeEventing is installed.
-	InstallSucceeded apis.ConditionType = "InstallSucceeded"
+	InstallSucceeded      apis.ConditionType = "InstallSucceeded"
+	DependenciesInstalled apis.ConditionType = "DependenciesInstalled"
+	DeploymentsAvailable  apis.ConditionType = "DeploymentsAvailable"
+	Ready                 apis.ConditionType = "Ready"
 )

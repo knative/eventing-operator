@@ -60,6 +60,7 @@ function install_latest_operator_release() {
       || fail_test "Unable to download latest Knative Eventing Operator release."
 
   kubectl apply -f "${release_yaml}" || fail_test "Knative Eventing Operator latest release installation failed"
+  wait_until_pods_running default || fail_test "Eventing Operator did not come up"
   create_custom_resource
   wait_until_pods_running ${TEST_NAMESPACE}
 }
@@ -86,35 +87,72 @@ function install_head() {
   install_eventing_operator
 }
 
+# This function either generate the manifest based on a branch or download the latest manifest for Knative Serving.
+# Parameter: $1 - branch name. If it is empty, download the manifest from nightly build.
+function generate_latest_serving_manifest() {
+  cd ${KNATIVE_SERVING_DIR}/serving
+  mkdir -p output
+  local branch=$1
+  if [[ -n "${branch}" ]]; then
+    git checkout ${branch}
+    COMMIT_ID=$(git rev-parse --verify HEAD)
+    echo ">> The latest commit ID of Knative Serving is ${COMMIT_ID}."
+    # Generate the manifest
+    export YAML_OUTPUT_DIR=${KNATIVE_SERVING_DIR}/serving/output
+    ./hack/generate-yamls.sh ${KNATIVE_SERVING_DIR}/serving ${YAML_OUTPUT_DIR}/output.yaml
+  else
+    echo ">> Download the latest nightly build of Knative Serving."
+    # Download the latest manifest
+    SERVING_YAML=${KNATIVE_SERVING_DIR}/serving/output/serving.yaml
+    wget -O ${SERVING_YAML} https://storage.googleapis.com/knative-nightly/serving/latest/serving.yaml
+  fi
+
+  if [[ -f "${SERVING_YAML}" ]]; then
+    echo ">> Replacing the current manifest in operator with the generated manifest"
+    rm -rf ${OPERATOR_DIR}/cmd/manager/kodata/knative-serving/*
+    cp ${SERVING_YAML} ${OPERATOR_DIR}/cmd/manager/kodata/knative-serving/serving.yaml
+  else
+    echo ">> The serving.yaml was not generated, so keep the current manifest"
+  fi
+
+  # Go back to the directory of operator
+  cd ${OPERATOR_DIR}
+}
+
 function generate_latest_eventing_manifest() {
   # Go the directory to download the source code of knative eventing
   cd ${KNATIVE_EVENTING_DIR}
-
   # Download the source code of knative eventing
   git clone https://github.com/knative/eventing.git
   cd eventing
-  COMMIT_ID=$(git rev-parse --verify HEAD)
-  echo ">> The latest commit ID of Knative Eventing is ${COMMIT_ID}."
   mkdir -p output
+  local branch=$1
+  if [[ -n "${branch}" ]]; then
+    git checkout ${branch}
+    COMMIT_ID=$(git rev-parse --verify HEAD)
+    echo ">> The latest commit ID of Knative Eventing is ${COMMIT_ID}."
+    # Generate the manifest
+    LABEL_YAML_CMD=(cat)
+    local all_yamls=()
+    for yaml in "${!COMPONENTS[@]}"; do
+      local config="${COMPONENTS[${yaml}]}"
+      echo "Building Knative Eventing - ${config}"
+      ko resolve -P -f ${config}/ | "${LABEL_YAML_CMD[@]}" > ${yaml}
+    done
+    EVENTING_YAML=${KNATIVE_EVENTING_DIR}/eventing/eventing.yaml
+  else
+    echo ">> Download the latest nightly build of Knative Eventing."
+    # Download the latest manifest
+    EVENTING_YAML=${KNATIVE_EVENTING_DIR}/eventing/output/eventing.yaml
+    wget -O ${EVENTING_YAML} https://storage.googleapis.com/knative-nightly/eventing/latest/eventing.yaml
+  fi
 
-  # Generate the manifest
-  LABEL_YAML_CMD=(cat)
-  local all_yamls=()
-  for yaml in "${!COMPONENTS[@]}"; do
-    local config="${COMPONENTS[${yaml}]}"
-    echo "Building Knative Eventing - ${config}"
-    ko resolve -P -f ${config}/ | "${LABEL_YAML_CMD[@]}" > ${yaml}
-  done
-
-  EVENTING_YAML=${KNATIVE_EVENTING_DIR}/eventing/eventing.yaml
-  IMC_YAML=${KNATIVE_EVENTING_DIR}/eventing/in-memory-channel.yaml
-  if [[ -f "${EVENTING_YAML}" && -f "${IMC_YAML}" ]]; then
+  if [[ -f "${EVENTING_YAML}" ]]; then
     echo ">> Replacing the current manifest in operator with the generated manifest"
     rm -rf ${OPERATOR_DIR}/cmd/manager/kodata/knative-eventing/*
     cp ${EVENTING_YAML} ${OPERATOR_DIR}/cmd/manager/kodata/knative-eventing/eventing.yaml
-    cp ${IMC_YAML} ${OPERATOR_DIR}/cmd/manager/kodata/knative-eventing/eventing-imc.yaml
   else
-    echo ">> The eventing.yaml and in-memory-channel.yaml were not generated, so keep the current manifest"
+    echo ">> The eventing.yaml was not generated, so keep the current manifest"
   fi
 
   # Go back to the directory of operator
@@ -136,6 +174,7 @@ failed=0
 
 # Run the postupgrade tests
 go_test_e2e -tags=postupgrade -timeout=${TIMEOUT} ./test/upgrade || failed=1
+wait_until_pods_running ${TEST_NAMESPACE}
 
 # Require that tests succeeded.
 (( failed )) && fail_test

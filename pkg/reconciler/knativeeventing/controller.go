@@ -19,7 +19,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/go-logr/zapr"
 	mfc "github.com/manifestival/client-go-client"
+	mf "github.com/manifestival/manifestival"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/tools/cache"
 
@@ -65,7 +67,8 @@ func NewController(
 		c.Logger.Error(err, "Error building kubeconfig")
 	}
 
-	config, err := mfc.NewManifest(filepath.Join(koDataDir, "knative-eventing/"), cfg)
+	config, err := mfc.NewManifest(filepath.Join(koDataDir, "knative-eventing/"), cfg,
+		mf.UseLogger(zapr.NewLogger(c.Logger.Desugar()).WithName("manifestival")))
 	if err != nil {
 		c.Logger.Error(err, "Error creating the Manifest for knative-eventing")
 		os.Exit(1)

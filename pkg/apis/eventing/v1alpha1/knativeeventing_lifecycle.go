@@ -23,7 +23,8 @@ import (
 )
 
 var eventingCondSet = apis.NewLivingConditionSet(
-	EventingConditionReady,
+	DependenciesInstalled,
+	DeploymentsAvailable,
 	InstallSucceeded,
 )
 
@@ -42,30 +43,41 @@ func (es *KnativeEventingStatus) InitializeConditions() {
 	eventingCondSet.Manage(es).InitializeConditions()
 }
 
-// MarkEventingInstalled set InstallSucceeded in KnativeEventingStatus as true
-func (es *KnativeEventingStatus) MarkEventingInstalled() {
+// MarkInstallFailed set InstallSucceeded in KnativeEventingStatus as false
+func (es *KnativeEventingStatus) MarkInstallFailed(msg string) {
+	eventingCondSet.Manage(es).MarkFalse(
+		InstallSucceeded,
+		"Error",
+		"Install failed with message: %s", msg)
+}
+
+func (es *KnativeEventingStatus) MarkInstallSucceeded() {
 	eventingCondSet.Manage(es).MarkTrue(InstallSucceeded)
+	if es.GetCondition(DependenciesInstalled).IsUnknown() {
+		// Assume deps are installed if we're not sure
+		es.MarkDependenciesInstalled()
+	}
+}
+
+func (es *KnativeEventingStatus) MarkDependenciesInstalled() {
+	eventingCondSet.Manage(es).MarkTrue(DependenciesInstalled)
+}
+
+func (es *KnativeEventingStatus) MarkDeploymentsAvailable() {
+	eventingCondSet.Manage(es).MarkTrue(DeploymentsAvailable)
+}
+
+func (es *KnativeEventingStatus) MarkDeploymentsNotReady() {
+	eventingCondSet.Manage(es).MarkFalse(
+		DeploymentsAvailable,
+		"NotReady",
+		"Waiting on deployments")
 }
 
 // IsReady looks at the conditions and if the Status has a condition
 // EventingConditionReady returns true if ConditionStatus is True
 func (es *KnativeEventingStatus) IsReady() bool {
 	return eventingCondSet.Manage(es).IsHappy()
-}
-
-// MarkEventingReady marks the KnativeEventing status as ready
-func (es *KnativeEventingStatus) MarkEventingReady() {
-	eventingCondSet.Manage(es).MarkTrue(EventingConditionReady)
-}
-
-// MarkEventingNotReady marks the KnativeEventing status as ready == Unknown
-func (es *KnativeEventingStatus) MarkEventingNotReady(reason, message string) {
-	eventingCondSet.Manage(es).MarkUnknown(EventingConditionReady, reason, message)
-}
-
-// MarkEventingFailed marks the KnativeEventing status as failed
-func (es *KnativeEventingStatus) MarkEventingFailed(reason, message string) {
-	eventingCondSet.Manage(es).MarkFalse(EventingConditionReady, reason, message)
 }
 
 func (es *KnativeEventingStatus) duck() *duckv1beta1.Status {

@@ -53,6 +53,14 @@ func AssertKEOperatorCRReadyStatus(t *testing.T, clients *test.Clients, names te
 	}
 }
 
+// AssertKEOperatorDeploymentStatus verifies if the Knative Eventing deployments reach the READY status.
+func AssertKEOperatorDeploymentStatus(t *testing.T, clients *test.Clients, namespace string, expectedDeployments []string) {
+	if _, err := WaitForKnativeEventingDeploymentState(clients, namespace, expectedDeployments,
+		IsKnativeEventingDeploymentReady); err != nil {
+		t.Fatalf("Knative Serving deployments failed to meet the expected deployments: %v", err)
+	}
+}
+
 // DeleteAndVerifyDeployments verify whether all the deployments for knative eventing are able to recreate, when they are deleted.
 func DeleteAndVerifyDeployments(t *testing.T, clients *test.Clients, names test.ResourceNames) {
 	dpList, err := clients.KubeClient.Kube.AppsV1().Deployments(names.Namespace).List(metav1.ListOptions{})
