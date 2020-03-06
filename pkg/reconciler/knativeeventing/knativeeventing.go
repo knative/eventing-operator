@@ -154,6 +154,7 @@ func (r *Reconciler) transform(instance *eventingv1alpha1.KnativeEventing) (mf.M
 
 func (r *Reconciler) install(manifest *mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
 	r.Logger.Debug("Installing manifest")
+	defer r.updateStatus(ke)
 	if err := manifest.Apply(); err != nil {
 		ke.Status.MarkEventingFailed("Manifest Installation", err.Error())
 		return err
