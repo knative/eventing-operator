@@ -1232,13 +1232,14 @@
 
 [[projects]]
   branch = "release-0.13"
-  digest = "1:77db7d7e7364e6acb7fe627ddb377f94e5199b020be96aa0e8654cd864db2d7a"
+  digest = "1:333539485c96ddf9d1ac20c5141a27044890c7d5b7f5de85f28a9267120acb4c"
   name = "knative.dev/pkg"
   packages = [
     "apis",
     "apis/duck",
     "apis/duck/v1",
     "apis/duck/v1beta1",
+    "apis/testing",
     "changeset",
     "client/injection/kube/client",
     "client/injection/kube/client/fake",
@@ -1280,18 +1281,18 @@
     "webhook/certificates/resources",
   ]
   pruneopts = "T"
-  revision = "2006e107e39eb0e661e4437ba76b16465162689e"
+  revision = "a56a6ea3fa56b9c9c2482a5bda0005dd2364d183"
 
 [[projects]]
   branch = "master"
-  digest = "1:e7ea104eff9c91ce48f1730ab8b4098faa1ea519162ccbbbca68c205428f0e21"
+  digest = "1:dd8432987142e8a917e58bac0137c287f54399fa68b0760936d52dce04eb639b"
   name = "knative.dev/test-infra"
   packages = [
     "scripts",
     "tools/dep-collector",
   ]
   pruneopts = "UT"
-  revision = "83fb33bf8fcfe5c0e021eb6c9bb8733a5b8423c0"
+  revision = "b0442a32a47ab9a35aaa98151bc4970f457d1c23"
 
 [[projects]]
   digest = "1:5fdf0517a870044f13def5f9f2dc75eb8cfb88baf7862eaf9884a06152f9391b"
@@ -1348,6 +1349,7 @@
     "k8s.io/code-generator/cmd/lister-gen",
     "knative.dev/pkg/apis",
     "knative.dev/pkg/apis/duck/v1beta1",
+    "knative.dev/pkg/apis/testing",
     "knative.dev/pkg/client/injection/kube/client",
     "knative.dev/pkg/client/injection/kube/client/fake",
     "knative.dev/pkg/client/injection/kube/informers/apps/v1/deployment",
