@@ -31,6 +31,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Error building kubeconfig", err)
 	}
-	sharedmain.WebhookMainWithConfig(signals.NewContext(), "eventing_operator", cfg, knativeeventing.NewController,
+	sharedmain.MainWithConfig(signals.NewContext(), "eventing-operator", cfg, knativeserving.NewController,
 		knativeeventing.NewControllerObsolete)
 }
