@@ -245,12 +245,5 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 		return err
 	}
 
-	resource.SetAPIVersion("apps/v1")
-	resource.SetKind("Deployment")
-	resource.SetName("sources-controller")
-	if err := manifest.Client.Delete(resource); err != nil {
-		return err
-	}
-
 	return nil
 }
