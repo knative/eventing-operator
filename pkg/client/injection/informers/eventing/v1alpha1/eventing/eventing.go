@@ -19,7 +19,7 @@ limitations under the License.
 package eventing
 
 import (
-	"context"
+	context "context"
 
 	v1alpha1 "knative.dev/eventing-operator/pkg/client/informers/externalversions/eventing/v1alpha1"
 	factory "knative.dev/eventing-operator/pkg/client/injection/informers/factory"

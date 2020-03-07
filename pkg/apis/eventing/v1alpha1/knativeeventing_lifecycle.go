@@ -42,15 +42,25 @@ func (es *KnativeEventingStatus) InitializeConditions() {
 	eventingCondSet.Manage(es).InitializeConditions()
 }
 
-// MarkEventingInstalled set InstallSucceeded in KnativeEventingStatus as true
-func (es *KnativeEventingStatus) MarkEventingInstalled() {
-	eventingCondSet.Manage(es).MarkTrue(InstallSucceeded)
-}
-
 // IsReady looks at the conditions and if the Status has a condition
 // EventingConditionReady returns true if ConditionStatus is True
 func (es *KnativeEventingStatus) IsReady() bool {
 	return eventingCondSet.Manage(es).IsHappy()
+}
+
+// MarkInstallationReady marks the InstallationSucceeded status as ready
+func (es *KnativeEventingStatus) MarkInstallationReady() {
+	eventingCondSet.Manage(es).MarkTrue(InstallSucceeded)
+}
+
+// MarkInstallationNotReady marks the InstallationSucceeded status as ready == Unknown
+func (es *KnativeEventingStatus) MarkInstallationNotReady(reason, message string) {
+	eventingCondSet.Manage(es).MarkUnknown(InstallSucceeded, reason, message)
+}
+
+// MarkInstallationFailed marks the InstallationSucceeded status as failed
+func (es *KnativeEventingStatus) MarkInstallationFailed(reason, message string) {
+	eventingCondSet.Manage(es).MarkFalse(InstallSucceeded, reason, message)
 }
 
 // MarkEventingReady marks the KnativeEventing status as ready
