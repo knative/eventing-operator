@@ -17,7 +17,7 @@ spec:
       serviceAccountName: knative-eventing-operator
       containers:
         - name: knative-eventing-operator
-          image: knative.dev/eventing-operator/cmd/manager
+          image: ko://knative.dev/eventing-operator/cmd/manager
           imagePullPolicy: IfNotPresent
           env:
             - name: POD_NAME
