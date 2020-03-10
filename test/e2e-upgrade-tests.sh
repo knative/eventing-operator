@@ -82,7 +82,7 @@ function knative_setup() {
 }
 
 function install_head() {
-  #generate_latest_eventing_manifest
+  generate_latest_eventing_manifest
   install_eventing_operator
 }
 
