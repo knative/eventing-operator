@@ -49,10 +49,7 @@ func Resource(resource string) schema.GroupResource {
 func addKnownTypes(s *runtime.Scheme) error {
 	s.AddKnownTypes(SchemeGroupVersion,
 		&KnativeEventing{},
-		&KnativeEventingList{},
-		// Add the CR of the version 0.11.0 and prior back to the known types
-		&Eventing{},
-		&EventingList{})
+		&KnativeEventingList{})
 	metav1.AddToGroupVersion(s, SchemeGroupVersion)
 	return nil
 }
