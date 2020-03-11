@@ -28,10 +28,6 @@ type FakeOperatorV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeOperatorV1alpha1) Eventings(namespace string) v1alpha1.EventingInterface {
-	return &FakeEventings{c, namespace}
-}
-
 func (c *FakeOperatorV1alpha1) KnativeEventings(namespace string) v1alpha1.KnativeEventingInterface {
 	return &FakeKnativeEventings{c, namespace}
 }

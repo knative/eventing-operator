@@ -154,12 +154,13 @@ func (r *Reconciler) transform(instance *eventingv1alpha1.KnativeEventing) (mf.M
 
 func (r *Reconciler) install(manifest *mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
 	r.Logger.Debug("Installing manifest")
+	defer r.updateStatus(ke)
 	if err := manifest.Apply(); err != nil {
 		ke.Status.MarkEventingFailed("Manifest Installation", err.Error())
 		return err
 	}
 	ke.Status.Version = version.Version
-	ke.Status.MarkEventingInstalled()
+	ke.Status.MarkInstallationReady()
 	return nil
 }
 
@@ -240,13 +241,6 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 	resource.SetAPIVersion("rbac.authorization.k8s.io/v1")
 	resource.SetKind("ClusterRoleBinding")
 	resource.SetName("eventing-source-controller-resolver")
-	if err := manifest.Client.Delete(resource); err != nil {
-		return err
-	}
-
-	resource.SetAPIVersion("apps/v1")
-	resource.SetKind("Deployment")
-	resource.SetName("sources-controller")
 	if err := manifest.Client.Delete(resource); err != nil {
 		return err
 	}

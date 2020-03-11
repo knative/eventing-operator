@@ -56,7 +56,7 @@ func TestKnativeEventingUpgrade(t *testing.T) {
 		resources.AssertKEOperatorCRReadyStatus(t, clients, names)
 		// TODO: We only verify the deployment, but we need to add other resources as well, like ServiceAccount, ClusterRoleBinding, etc.
 		expectedDeployments := []string{"eventing-controller", "eventing-webhook", "imc-controller",
-			"imc-dispatcher", "broker-controller"}
+			"imc-dispatcher", "broker-controller", "sources-controller"}
 		knativeEventingVerifyDeployment(t, clients, names, expectedDeployments)
 	})
 

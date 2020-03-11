@@ -25,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"knative.dev/pkg/apis"
 	duckv1beta1 "knative.dev/pkg/apis/duck/v1beta1"
+	apistest "knative.dev/pkg/apis/testing"
 )
 
 var ignoreAllButTypeAndStatus = cmpopts.IgnoreFields(
@@ -52,7 +53,7 @@ func TestKnativeEventingStatusGetCondition(t *testing.T) {
 		Type:   InstallSucceeded,
 		Status: corev1.ConditionTrue,
 	}
-	ke.MarkEventingInstalled()
+	ke.MarkInstallationReady()
 	if diff := cmp.Diff(mc, ke.GetCondition(InstallSucceeded), cmpopts.IgnoreFields(apis.Condition{}, "LastTransitionTime")); diff != "" {
 		t.Errorf("GetCondition refs diff (-want +got): %v", diff)
 	}
@@ -64,7 +65,7 @@ func TestKnativeEventingStatusEventingInstalled(t *testing.T) {
 		Type:   InstallSucceeded,
 		Status: corev1.ConditionTrue,
 	}
-	ke.MarkEventingInstalled()
+	ke.MarkInstallationReady()
 	if diff := cmp.Diff(mc, ke.GetCondition(InstallSucceeded), cmpopts.IgnoreFields(apis.Condition{}, "LastTransitionTime")); diff != "" {
 		t.Errorf("GetCondition refs diff (-want +got): %v", diff)
 	}
@@ -104,22 +105,52 @@ func TestKnativeEventingStatusNotReady(t *testing.T) {
 
 func TestKnativeEventingStatusReady(t *testing.T) {
 	ke := &KnativeEventingStatus{}
-	mc := &apis.Condition{
-		Type:   EventingConditionReady,
-		Status: corev1.ConditionTrue,
-	}
+	ke.InitializeConditions()
+	apistest.CheckConditionOngoing(ke, EventingConditionReady, t)
+
+	ke.MarkInstallationReady()
 	ke.MarkEventingReady()
-	if diff := cmp.Diff(mc, ke.GetCondition(EventingConditionReady), cmpopts.IgnoreFields(apis.Condition{}, "LastTransitionTime")); diff != "" {
-		t.Errorf("GetCondition refs diff (-want +got): %v", diff)
-	}
+	apistest.CheckConditionSucceeded(ke, EventingConditionReady, t)
 }
 
 func TestKnativeEventingStatusIsReady(t *testing.T) {
 	ke := &KnativeEventingStatus{}
+	ke.MarkInstallationReady()
 	ke.MarkEventingReady()
 	if diff := cmp.Diff(true, ke.IsReady()); diff != "" {
 		t.Errorf("IsReady refs diff (-want +got): %v", diff)
 	}
+}
+
+func TestKnativeEventingSuccesssFlow(t *testing.T) {
+	ke := &KnativeEventingStatus{}
+	ke.InitializeConditions()
+
+	apistest.CheckConditionOngoing(ke, EventingConditionReady, t)
+
+	// Installation succeeds
+	ke.MarkInstallationReady()
+	ke.MarkEventingReady()
+	apistest.CheckConditionSucceeded(ke, InstallSucceeded, t)
+	apistest.CheckConditionSucceeded(ke, EventingConditionReady, t)
+}
+
+func TestKnativeEventingFailureFlow(t *testing.T) {
+	ke := &KnativeEventingStatus{}
+	ke.InitializeConditions()
+
+	apistest.CheckConditionOngoing(ke, EventingConditionReady, t)
+
+	// Installation not ready
+	ke.MarkInstallationNotReady("slow", "slow cpu.")
+	apistest.CheckConditionOngoing(ke, InstallSucceeded, t)
+	apistest.CheckConditionOngoing(ke, EventingConditionReady, t)
+
+	// Installation failed
+	ke.MarkInstallationFailed("failed", "no resources.")
+	ke.MarkEventingFailed("failed", "installation failed.")
+	apistest.CheckConditionFailed(ke, InstallSucceeded, t)
+	apistest.CheckConditionFailed(ke, EventingConditionReady, t)
 }
 
 func TestKnativeEventingInitializeConditions(t *testing.T) {

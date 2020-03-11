@@ -26,17 +26,12 @@ import (
 
 type OperatorV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	EventingsGetter
 	KnativeEventingsGetter
 }
 
 // OperatorV1alpha1Client is used to interact with features provided by the operator.knative.dev group.
 type OperatorV1alpha1Client struct {
 	restClient rest.Interface
-}
-
-func (c *OperatorV1alpha1Client) Eventings(namespace string) EventingInterface {
-	return newEventings(c, namespace)
 }
 
 func (c *OperatorV1alpha1Client) KnativeEventings(namespace string) KnativeEventingInterface {
