@@ -6,6 +6,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: knative-eventing-operator
+  namespace: default
 roleRef:
   kind: Role
   name: knative-eventing-operator

@@ -3,6 +3,7 @@ kind: Role
 metadata:
   creationTimestamp: null
   name: knative-eventing-operator
+  namespace: knative-eventing
 rules:
 - apiGroups:
   - '*'
