@@ -74,7 +74,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 		var RBAC = mf.Any(mf.ByKind("Role"), mf.ByKind("ClusterRole"), mf.ByKind("RoleBinding"), mf.ByKind("ClusterRoleBinding"))
 
 		if r.eventings.Len() == 0 {
-			if err := r.config.Filter(mf.NotCRDs, mf.None(RBAC)).Delete(); err != nil {
+			if err := r.config.Filter(mf.NoCRDs, mf.None(RBAC)).Delete(); err != nil {
 				return err
 			}
 			// Delete Roles last, as they may be useful for human operators to clean up.
