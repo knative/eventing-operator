@@ -72,7 +72,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 		// The resource was deleted
 		r.eventings.Delete(key)
 		if r.eventings.Len() == 0 {
-			r.config.Filter(mf.NotCRDs).Delete()
+			r.config.Filter(mf.NoCRDs).Delete()
 		}
 		return nil
 
