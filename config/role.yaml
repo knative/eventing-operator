@@ -150,20 +150,9 @@ rules:
   - leases
   verbs:
   - '*'
-# Permissions required specifically for this Operator.
 - apiGroups:
   - apiextensions.k8s.io
   resources:
   - customresourcedefinitions
   verbs:
   - '*'
-# Old resources that need cleaning up that are not in the knative-eventing
-# namespace.
-kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: knative-eventing-operator
-rules:
-  - apiGroups: ["*"]
-    resources: ["*"]
-    verbs: ["*"]
