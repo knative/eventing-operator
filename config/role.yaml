@@ -23,6 +23,8 @@ rules:
   verbs:
   - '*'
 # Bootstrapping permissions.
+# Roles that are explicitly bound buch which are specified by this Operator
+# MUST be specified here with 'get' and 'bind'.
 - apiGroups:
   - rbac.authorization.k8s.io
   resources:
