@@ -41,8 +41,8 @@ import (
 )
 
 var (
-	platform common.Platforms
-	role mf.Predicate = mf.Any(mf.ByKind("ClusterRole"), mf.ByKind("Role"))
+	platform    common.Platforms
+	role        mf.Predicate = mf.Any(mf.ByKind("ClusterRole"), mf.ByKind("Role"))
 	rolebinding mf.Predicate = mf.Any(mf.ByKind("ClusterRoleBinding"), mf.ByKind("RoleBinding"))
 )
 
