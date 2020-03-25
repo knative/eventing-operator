@@ -1,3 +1,4 @@
+# TODO: Consider restriction of non-aggregated role to knative-serving namespace.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
