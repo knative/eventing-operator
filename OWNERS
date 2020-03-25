@@ -1,6 +1,7 @@
 # The OWNERS file is used by prow to automatically merge approved PRs.
 
 approvers:
+- Cynocracy
 - matzew
 - n3wscott
 # Operations WG leads
