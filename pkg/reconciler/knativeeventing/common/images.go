@@ -59,6 +59,8 @@ func updateDeployment(instance *eventingv1alpha1.KnativeEventing, u *unstructure
 	log.Debugw("Updating Deployment", "name", u.GetName(), "registry", registry)
 
 	updateDeploymentImage(deployment, &registry, log)
+	updateDeploymentEnvVarImages(deployment, &registry, log)
+
 	deployment.Spec.Template.Spec.ImagePullSecrets = addImagePullSecrets(
 		deployment.Spec.Template.Spec.ImagePullSecrets, &registry, log)
 	err = scheme.Scheme.Convert(deployment, u, nil)
@@ -71,6 +73,19 @@ func updateDeployment(instance *eventingv1alpha1.KnativeEventing, u *unstructure
 
 	log.Debugw("Finished conversion", "name", u.GetName(), "unstructured", u.Object)
 	return nil
+}
+
+func updateDeploymentEnvVarImages(deployment *appsv1.Deployment, registry *eventingv1alpha1.Registry, log *zap.SugaredLogger) {
+	containers := deployment.Spec.Template.Spec.Containers
+	for index := range containers {
+		container := &containers[index]
+		for envIndex := range container.Env {
+			env := &container.Env[envIndex]
+			if newImage, ok := registry.Override[env.Name]; ok {
+				env.Value = newImage
+			}
+		}
+	}
 }
 
 // updateDeploymentImage updates the image of the deployment with a new registry and tag
