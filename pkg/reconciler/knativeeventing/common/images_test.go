@@ -33,7 +33,7 @@ type updateDeploymentImageTest struct {
 	name       string
 	containers []corev1.Container
 	registry   eventingv1alpha1.Registry
-	expected   []string
+	expected   []corev1.Container
 }
 
 var updateDeploymentImageTests = []updateDeploymentImageTest{
@@ -46,7 +46,10 @@ var updateDeploymentImageTests = []updateDeploymentImageTest{
 		registry: eventingv1alpha1.Registry{
 			Default: "new-registry.io/test/path/${NAME}:new-tag",
 		},
-		expected: []string{"new-registry.io/test/path/queue:new-tag"},
+		expected: []corev1.Container{{
+			Name:  "queue",
+			Image: "new-registry.io/test/path/queue:new-tag"},
+		},
 	},
 	{
 		name: "UsesContainerNamePerContainer",
@@ -66,9 +69,15 @@ var updateDeploymentImageTests = []updateDeploymentImageTest{
 				"container2": "new-registry.io/test/path/new-container-2:new-tag",
 			},
 		},
-		expected: []string{
-			"new-registry.io/test/path/new-container-1:new-tag",
-			"new-registry.io/test/path/new-container-2:new-tag",
+		expected: []corev1.Container{
+			{
+				Name:  "container1",
+				Image: "new-registry.io/test/path/new-container-1:new-tag",
+			},
+			{
+				Name:  "container2",
+				Image: "new-registry.io/test/path/new-container-2:new-tag",
+			},
 		},
 	},
 	{
@@ -83,7 +92,10 @@ var updateDeploymentImageTests = []updateDeploymentImageTest{
 				"queue": "new-registry.io/test/path/new-value:new-override-tag",
 			},
 		},
-		expected: []string{"new-registry.io/test/path/new-value:new-override-tag"},
+		expected: []corev1.Container{{
+			Name:  "queue",
+			Image: "new-registry.io/test/path/new-value:new-override-tag"},
+		},
 	},
 	{
 		name: "NoChangeOverrideWithDifferentName",
@@ -96,7 +108,10 @@ var updateDeploymentImageTests = []updateDeploymentImageTest{
 				"Unused": "new-registry.io/test/path",
 			},
 		},
-		expected: []string{"docker.io/name/image:tag2"},
+		expected: []corev1.Container{{
+			Name:  "image",
+			Image: "docker.io/name/image:tag2"},
+		},
 	},
 	{
 		name: "NoChange",
@@ -105,7 +120,57 @@ var updateDeploymentImageTests = []updateDeploymentImageTest{
 			Image: "gcr.io/knative-releases/github.com/knative/eventing/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45"},
 		},
 		registry: eventingv1alpha1.Registry{},
-		expected: []string{"gcr.io/knative-releases/github.com/knative/eventing/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45"},
+		expected: []corev1.Container{{
+			Name:  "queue",
+			Image: "gcr.io/knative-releases/github.com/knative/eventing/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45"},
+		},
+	},
+	{
+		name: "OverrideEnvVarImage",
+		containers: []corev1.Container{{
+			Env: []corev1.EnvVar{{Name: "SOME_IMAGE", Value: "gcr.io/foo/bar"}},
+		}},
+		registry: eventingv1alpha1.Registry{
+			Override: map[string]string{
+				"SOME_IMAGE": "docker.io/my/overridden-image",
+			},
+		},
+		expected: []corev1.Container{{
+			Env: []corev1.EnvVar{{Name: "SOME_IMAGE", Value: "docker.io/my/overridden-image"}},
+		}},
+	},
+	{
+		name: "NoOverrideEnvVarImage",
+		containers: []corev1.Container{{
+			Env: []corev1.EnvVar{{Name: "SOME_IMAGE", Value: "gcr.io/foo/bar"}},
+		}},
+		registry: eventingv1alpha1.Registry{
+			Override: map[string]string{
+				"OTHER_IMAGE": "docker.io/my/overridden-image",
+			},
+		},
+		expected: []corev1.Container{{
+			Env: []corev1.EnvVar{{Name: "SOME_IMAGE", Value: "gcr.io/foo/bar"}},
+		}},
+	},
+	{
+		name: "NoOverrideEnvVarImageAndContainerImageBoth",
+		containers: []corev1.Container{{
+			Name:  "queue",
+			Image: "gcr.io/knative-releases/github.com/knative/eventing/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45",
+			Env:   []corev1.EnvVar{{Name: "SOME_IMAGE", Value: "gcr.io/foo/bar"}},
+		}},
+		registry: eventingv1alpha1.Registry{
+			Override: map[string]string{
+				"queue":      "new-registry.io/test/path/new-value:new-override-tag",
+				"SOME_IMAGE": "docker.io/my/overridden-image",
+			},
+		},
+		expected: []corev1.Container{{
+			Name:  "queue",
+			Image: "new-registry.io/test/path/new-value:new-override-tag",
+			Env:   []corev1.EnvVar{{Name: "SOME_IMAGE", Value: "docker.io/my/overridden-image"}},
+		}},
 	},
 }
 
@@ -132,9 +197,7 @@ func validateUnstructedDeploymentChanged(t *testing.T, tt *updateDeploymentImage
 	var deployment = &appsv1.Deployment{}
 	err := scheme.Scheme.Convert(u, deployment, nil)
 	assertEqual(t, err, nil)
-	for i, expected := range tt.expected {
-		assertEqual(t, deployment.Spec.Template.Spec.Containers[i].Image, expected)
-	}
+	assertDeepEqual(t, deployment.Spec.Template.Spec.Containers, tt.expected)
 }
 
 func makeDeployment(t *testing.T, name string, podSpec corev1.PodSpec) *appsv1.Deployment {
