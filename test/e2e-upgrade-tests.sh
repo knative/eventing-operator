@@ -29,7 +29,8 @@
 source $(dirname $0)/../vendor/knative.dev/test-infra/scripts/e2e-tests.sh
 
 # Latest eventing operator release.
-readonly LATEST_EVENTING_RELEASE_VERSION=$(git describe --match "v[0-9]*" --abbrev=0)
+readonly LATEST_EVENTING_OPERATOR_RELEASE_VERSION=$(git tag | sort -V | tail -1)
+readonly LATEST_EVENTING_RELEASE_VERSION="v0.13.3"
 
 OPERATOR_DIR=$(dirname $0)/..
 KNATIVE_EVENTING_DIR=${OPERATOR_DIR}/..
@@ -53,7 +54,7 @@ function install_eventing_operator() {
 
 function install_latest_operator_release() {
   header "Installing Knative Eventing operator latest public release"
-  local full_url="https://github.com/knative/eventing-operator/releases/download/${LATEST_EVENTING_RELEASE_VERSION}/eventing-operator.yaml"
+  local full_url="https://github.com/knative/eventing-operator/releases/download/${LATEST_EVENTING_OPERATOR_RELEASE_VERSION}/eventing-operator.yaml"
 
   local release_yaml="$(mktemp)"
   wget "${full_url}" -O "${release_yaml}" \
@@ -136,6 +137,19 @@ failed=0
 
 # Run the postupgrade tests
 go_test_e2e -tags=postupgrade -timeout=${TIMEOUT} ./test/upgrade || failed=1
+
+# Verify with the bash script to make sure there is no resource with the label of the previous release.
+list_resources="deployment,pod,service,cm,crd,sa,ClusterRole,ClusterRoleBinding,ValidatingWebhookConfiguration,\
+MutatingWebhookConfiguration,Secret,RoleBinding"
+result="$(kubectl get ${list_resources} -l eventing.knative.dev/release=${LATEST_EVENTING_RELEASE_VERSION} --all-namespaces 2>/dev/null)"
+echo "${result}"
+
+# If the ${result} is not empty, we fail the tests, because the resources from the previous release still exist.
+if [[ ! -z ${result} ]] ; then
+  header "The following obsolete resources still exist:"
+  echo "${result}"
+  fail_test "The resources with the label of previous release have not been removed."
+fi
 
 # Require that tests succeeded.
 (( failed )) && fail_test

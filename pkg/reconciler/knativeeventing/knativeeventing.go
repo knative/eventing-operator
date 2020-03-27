@@ -267,11 +267,11 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 	}
 
 	// Remove the legacysinkbindings webhook at 0.13
-	resource.SetAPIVersion("admissionregistration.k8s.io/v1beta1")
-	resource.SetKind("MutatingWebhookConfiguration")
-	resource.SetName("legacysinkbindings.webhook.sources.knative.dev")
-	if err := manifest.Client.Delete(resource); err != nil {
-		return err
-	}
+	//resource.SetAPIVersion("admissionregistration.k8s.io/v1beta1")
+	//resource.SetKind("MutatingWebhookConfiguration")
+	//resource.SetName("legacysinkbindings.webhook.sources.knative.dev")
+	//if err := manifest.Client.Delete(resource); err != nil {
+	//	return err
+	//}
 	return nil
 }
