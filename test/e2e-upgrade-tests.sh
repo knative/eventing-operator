@@ -83,7 +83,6 @@ function knative_setup() {
 }
 
 function install_head() {
-  generate_latest_eventing_manifest
   install_eventing_operator
 }
 
@@ -142,7 +141,6 @@ go_test_e2e -tags=postupgrade -timeout=${TIMEOUT} ./test/upgrade || failed=1
 list_resources="deployment,pod,service,cm,crd,sa,ClusterRole,ClusterRoleBinding,ValidatingWebhookConfiguration,\
 MutatingWebhookConfiguration,Secret,RoleBinding"
 result="$(kubectl get ${list_resources} -l eventing.knative.dev/release=${LATEST_EVENTING_RELEASE_VERSION} --all-namespaces 2>/dev/null)"
-echo "${result}"
 
 # If the ${result} is not empty, we fail the tests, because the resources from the previous release still exist.
 if [[ ! -z ${result} ]] ; then
