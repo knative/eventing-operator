@@ -33,6 +33,7 @@ import (
 var (
 	// The string to be replaced by the container name
 	containerNameVariable = "${NAME}"
+	delimiter             = "/"
 )
 
 // DeploymentTransform updates the links of images with customized registries for all deployments
@@ -92,7 +93,7 @@ func updateDeploymentImage(deployment *appsv1.Deployment, registry *eventingv1al
 	containers := deployment.Spec.Template.Spec.Containers
 	for index := range containers {
 		container := &containers[index]
-		newImage := getNewImage(registry, container.Name)
+		newImage := getNewImage(registry, container.Name, deployment.Name)
 		if newImage != "" {
 			updateContainer(container, newImage, log)
 		}
@@ -100,8 +101,11 @@ func updateDeploymentImage(deployment *appsv1.Deployment, registry *eventingv1al
 	log.Debugw("Finished updating images", "name", deployment.GetName(), "containers", deployment.Spec.Template.Spec.Containers)
 }
 
-func getNewImage(registry *eventingv1alpha1.Registry, containerName string) string {
-	overrideImage := registry.Override[containerName]
+func getNewImage(registry *eventingv1alpha1.Registry, containerName, deploymentName string) string {
+	overrideImage := registry.Override[deploymentName+delimiter+containerName]
+	if overrideImage == "" {
+		overrideImage = registry.Override[containerName]
+	}
 	if overrideImage != "" {
 		return overrideImage
 	}
