@@ -107,6 +107,78 @@ var updateDeploymentImageTests = []updateDeploymentImageTest{
 		registry: eventingv1alpha1.Registry{},
 		expected: []string{"gcr.io/knative-releases/github.com/knative/eventing/cmd/queue@sha256:1e40c99ff5977daa2d69873fff604c6d09651af1f9ff15aadf8849b3ee77ab45"},
 	},
+	{
+		name: "OverrideWithDeploymentContainer",
+		containers: []corev1.Container{
+			{
+				Name:  "container1",
+				Image: "gcr.io/cmd/queue:test",
+			},
+			{
+				Name:  "container2",
+				Image: "gcr.io/cmd/queue:test",
+			},
+		},
+		registry: eventingv1alpha1.Registry{
+			Override: map[string]string{
+				"container1": "new-registry.io/test/path/new-container-1:new-tag",
+				"container2": "new-registry.io/test/path/new-container-2:new-tag",
+				"OverrideWithDeploymentContainer/container1": "new-registry.io/test/path/OverrideWithDeploymentContainer/container-1:new-tag",
+				"OverrideWithDeploymentContainer/container2": "new-registry.io/test/path/OverrideWithDeploymentContainer/container-2:new-tag",
+			},
+		},
+		expected: []string{
+			"new-registry.io/test/path/OverrideWithDeploymentContainer/container-1:new-tag",
+			"new-registry.io/test/path/OverrideWithDeploymentContainer/container-2:new-tag",
+		},
+	},
+	{
+		name: "OverridePartialWithDeploymentContainer",
+		containers: []corev1.Container{
+			{
+				Name:  "container1",
+				Image: "gcr.io/cmd/queue:test",
+			},
+			{
+				Name:  "container2",
+				Image: "gcr.io/cmd/queue:test",
+			},
+		},
+		registry: eventingv1alpha1.Registry{
+			Override: map[string]string{
+				"container1": "new-registry.io/test/path/new-container-1:new-tag",
+				"container2": "new-registry.io/test/path/new-container-2:new-tag",
+				"OverridePartialWithDeploymentContainer/container1": "new-registry.io/test/path/OverridePartialWithDeploymentContainer/container-1:new-tag",
+			},
+		},
+		expected: []string{
+			"new-registry.io/test/path/OverridePartialWithDeploymentContainer/container-1:new-tag",
+			"new-registry.io/test/path/new-container-2:new-tag",
+		},
+	},
+	{
+		name: "OverrideWithDeploymentName",
+		containers: []corev1.Container{
+			{
+				Name:  "container1",
+				Image: "gcr.io/cmd/queue:test",
+			},
+			{
+				Name:  "container2",
+				Image: "gcr.io/cmd/queue:test",
+			},
+		},
+		registry: eventingv1alpha1.Registry{
+			Override: map[string]string{
+				"OverrideWithDeploymentName/container1": "new-registry.io/test/path/OverrideWithDeploymentName/container-1:new-tag",
+				"OverrideWithDeploymentName/container2": "new-registry.io/test/path/OverrideWithDeploymentName/container-2:new-tag",
+			},
+		},
+		expected: []string{
+			"new-registry.io/test/path/OverrideWithDeploymentName/container-1:new-tag",
+			"new-registry.io/test/path/OverrideWithDeploymentName/container-2:new-tag",
+		},
+	},
 }
 
 func TestDeploymentTransform(t *testing.T) {
@@ -116,6 +188,7 @@ func TestDeploymentTransform(t *testing.T) {
 		})
 	}
 }
+
 func runDeploymentTransformTest(t *testing.T, tt *updateDeploymentImageTest) {
 	unstructuredDeployment := makeUnstructured(t, makeDeployment(t, tt.name, corev1.PodSpec{Containers: tt.containers}))
 	instance := &eventingv1alpha1.KnativeEventing{
