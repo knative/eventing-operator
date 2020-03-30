@@ -266,5 +266,53 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 		return err
 	}
 
+	// Remove the legacysinkbindings webhook at 0.13
+	resource.SetAPIVersion("admissionregistration.k8s.io/v1beta1")
+	resource.SetKind("MutatingWebhookConfiguration")
+	resource.SetName("legacysinkbindings.webhook.sources.knative.dev")
+	if err := manifest.Client.Delete(resource); err != nil {
+		return err
+	}
+
+	// Remove the knative-eventing-sources-namespaced-admin ClusterRole at 0.13
+	resource.SetAPIVersion("rbac.authorization.k8s.io/v1")
+	resource.SetKind("ClusterRole")
+	resource.SetName("knative-eventing-sources-namespaced-admin")
+	if err := manifest.Client.Delete(resource); err != nil {
+		return err
+	}
+
+	// Remove the apiserversources.sources.eventing.knative.dev CRD at 0.13
+	resource.SetAPIVersion("apiextensions.k8s.io/v1beta1")
+	resource.SetKind("CustomResourceDefinition")
+	resource.SetName("apiserversources.sources.eventing.knative.dev")
+	if err := manifest.Client.Delete(resource); err != nil {
+		return err
+	}
+
+	// Remove the containersources.sources.eventing.knative.dev CRD at 0.13
+	resource.SetAPIVersion("apiextensions.k8s.io/v1beta1")
+	resource.SetKind("CustomResourceDefinition")
+	resource.SetName("containersources.sources.eventing.knative.dev")
+	if err := manifest.Client.Delete(resource); err != nil {
+		return err
+	}
+
+	// Remove the cronjobsources.sources.eventing.knative.dev CRD at 0.13
+	resource.SetAPIVersion("apiextensions.k8s.io/v1beta1")
+	resource.SetKind("CustomResourceDefinition")
+	resource.SetName("cronjobsources.sources.eventing.knative.dev")
+	if err := manifest.Client.Delete(resource); err != nil {
+		return err
+	}
+
+	// Remove the sinkbindings.sources.eventing.knative.dev CRD at 0.13
+	resource.SetAPIVersion("apiextensions.k8s.io/v1beta1")
+	resource.SetKind("CustomResourceDefinition")
+	resource.SetName("sinkbindings.sources.eventing.knative.dev")
+	if err := manifest.Client.Delete(resource); err != nil {
+		return err
+	}
+
 	return nil
 }
