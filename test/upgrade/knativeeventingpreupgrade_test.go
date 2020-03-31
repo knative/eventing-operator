@@ -1,4 +1,4 @@
-// +build postupgrade
+// +build preupgrade
 
 /*
 Copyright 2020 The Knative Authors
@@ -24,9 +24,8 @@ import (
 	"knative.dev/pkg/test/logstream"
 )
 
-// TestKnativeEventingUpgrade verifies the KnativeEventing creation, deployment recreation, and KnativeEventing deletion
-// after upgraded to the latest HEAD at master, with the latest generated manifest of KnativeEventing.
-func TestKnativeEventingUpgrade(t *testing.T) {
+// TestKnativeEventingPreUpgrade verifies the KnativeEventing creation, before upgraded to the latest HEAD at master.
+func TestKnativeEventingPreUpgrade(t *testing.T) {
 	cancel := logstream.Start(t)
 	defer cancel()
 	clients := client.Setup(t)
@@ -45,7 +44,7 @@ func TestKnativeEventingUpgrade(t *testing.T) {
 	t.Run("verify resources", func(t *testing.T) {
 		resources.AssertKEOperatorCRReadyStatus(t, clients, names)
 		expectedDeployments := []string{"eventing-controller", "eventing-webhook", "imc-controller",
-			"imc-dispatcher", "broker-controller"}
+			"imc-dispatcher", "broker-controller", "sources-controller"}
 		resources.AssertKEOperatorDeploymentStatus(t, clients, names.Namespace, expectedDeployments)
 	})
 }

@@ -97,3 +97,43 @@ func getDeploymentStatus(d *v1.Deployment) corev1.ConditionStatus {
 	}
 	return "unknown"
 }
+
+// WaitForKnativeEventingDeploymentState polls the status of the Knative deployments every `interval`
+// until `inState` returns `true` indicating the deployments match the desired deployments.
+func WaitForKnativeEventingDeploymentState(clients *test.Clients, namespace string, expectedDeployments []string, logf logging.FormatLogger,
+	inState func(deps *v1.DeploymentList, expectedDeployments []string, err error, logf logging.FormatLogger) (bool, error)) error {
+	span := logging.GetEmitableSpan(context.Background(), fmt.Sprintf("WaitForKnativeDeploymentState/%s/%s", expectedDeployments, "KnativeDeploymentIsReady"))
+	defer span.End()
+
+	waitErr := wait.PollImmediate(Interval, Timeout, func() (bool, error) {
+		dpList, err := clients.KubeClient.Kube.AppsV1().Deployments(namespace).List(metav1.ListOptions{})
+		return inState(dpList, expectedDeployments, err, logf)
+	})
+
+	return waitErr
+}
+
+// IsKnativeEventingDeploymentReady will check the status conditions of the deployments and return true if the deployments meet the desired status.
+func IsKnativeEventingDeploymentReady(dpList *v1.DeploymentList, expectedDeployments []string, err error,
+	logf logging.FormatLogger) (bool, error) {
+	if err != nil {
+		return false, err
+	}
+	if len(dpList.Items) != len(expectedDeployments) {
+		logf("The expected number of deployments is %v, and got %v.", len(expectedDeployments), len(dpList.Items))
+		return false, nil
+	}
+	for _, deployment := range dpList.Items {
+		if !stringInList(deployment.Name, expectedDeployments) {
+			logf("The deployment %v is not found in the expected list of deployment.", deployment.Name)
+			return false, nil
+		}
+		for _, c := range deployment.Status.Conditions {
+			if c.Type == v1.DeploymentAvailable && c.Status != corev1.ConditionTrue {
+				logf("The deployment %v is not ready.", deployment.Name)
+				return false, nil
+			}
+		}
+	}
+	return true, nil
+}

@@ -141,3 +141,27 @@ func verifyNoKnativeEventings(clients *test.Clients) error {
 	}
 	return nil
 }
+
+// AssertKEOperatorDeploymentStatus verifies if the Knative deployments reach the READY status.
+func AssertKEOperatorDeploymentStatus(t *testing.T, clients *test.Clients, namespace string, expectedDeployments []string) {
+	if err := WaitForKnativeEventingDeploymentState(clients, namespace, expectedDeployments, t.Logf,
+		IsKnativeEventingDeploymentReady); err != nil {
+		t.Fatalf("Knative Eventing deployments failed to meet the expected deployments: %v", err)
+	}
+}
+
+func assertEqual(t *testing.T, actual, expected interface{}) {
+	if actual == expected {
+		return
+	}
+	t.Fatalf("expected does not equal actual. \nExpected: %v\nActual: %v", expected, actual)
+}
+
+func stringInList(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
