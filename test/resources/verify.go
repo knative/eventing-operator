@@ -99,6 +99,16 @@ func KEOperatorCRDelete(t *testing.T, clients *test.Clients, names test.Resource
 	if err := clients.KnativeEventing().Delete(names.KnativeEventing, &metav1.DeleteOptions{}); err != nil {
 		t.Fatalf("KnativeEventing %q failed to delete: %v", names.KnativeEventing, err)
 	}
+	err := wait.PollImmediate(Interval, Timeout, func() (bool, error) {
+		_, err := clients.KnativeEventing().Get(names.KnativeEventing, metav1.GetOptions{})
+		if apierrs.IsNotFound(err) {
+			return true, nil
+		}
+		return false, err
+	})
+	if err != nil {
+		t.Fatal("Timed out waiting on KnativeServing to delete", err)
+	}
 	_, b, _, _ := runtime.Caller(0)
 	m, err := mfc.NewManifest(filepath.Join((filepath.Dir(b)+"/.."), "config/"), clients.Config)
 	if err != nil {
@@ -109,14 +119,8 @@ func KEOperatorCRDelete(t *testing.T, clients *test.Clients, names test.Resource
 	}
 	// verify all but the CRD's and the Namespace are gone
 	for _, u := range m.Filter(mf.NoCRDs, mf.None(mf.ByKind("Namespace"))).Resources() {
-		waitErr := wait.PollImmediate(Interval, Timeout, func() (bool, error) {
-			if _, err := m.Client.Get(&u); apierrs.IsNotFound(err) {
-				return true, nil
-			}
-			return false, err
-		})
-		if waitErr != nil {
-			t.Fatalf("The %s %s failed to be deleted: %v", u.GetKind(), u.GetName(), waitErr)
+		if _, err := m.Client.Get(&u); !apierrs.IsNotFound(err) {
+			t.Fatalf("The %s %s failed to be deleted: %v", u.GetKind(), u.GetName(), err)
 		}
 	}
 	// verify all the CRD's remain
