@@ -30,7 +30,7 @@ source $(dirname $0)/../vendor/knative.dev/test-infra/scripts/e2e-tests.sh
 
 # Latest eventing operator release.
 readonly LATEST_EVENTING_OPERATOR_RELEASE_VERSION=$(git tag | sort -V | tail -1)
-readonly LATEST_EVENTING_RELEASE_VERSION="v0.13.3"
+readonly LATEST_EVENTING_RELEASE_VERSION="v0.13.4"
 
 OPERATOR_DIR=$(dirname $0)/..
 KNATIVE_EVENTING_DIR=${OPERATOR_DIR}/..
@@ -61,13 +61,13 @@ function install_latest_operator_release() {
       || fail_test "Unable to download latest Knative Eventing Operator release."
 
   kubectl apply -f "${release_yaml}" || fail_test "Knative Eventing Operator latest release installation failed"
+  wait_until_pods_running default || fail_test "Eventing Operator did not come up"
   create_custom_resource
-  wait_until_pods_running ${TEST_NAMESPACE}
 }
 
 function create_custom_resource() {
   echo ">> Creating the custom resource of Knative Eventing:"
-  cat <<EOF | kubectl apply -f -
+  cat <<-EOF | kubectl apply -f -
 apiVersion: operator.knative.dev/v1alpha1
 kind: KnativeEventing
 metadata:
@@ -128,10 +128,16 @@ initialize $@ --skip-istio-addon
 
 TIMEOUT=20m
 
+header "Running preupgrade tests"
+go_test_e2e -tags=preupgrade -timeout=${TIMEOUT} ./test/upgrade || fail_test
+
+header "Listing all the pods of the previous release"
+wait_until_pods_running ${TEST_NAMESPACE}
+
 install_head
 
 # If we got this far, the operator installed Knative Eventing
-header "Running tests for Knative Eventing Operator"
+header "Running postupgrade tests for Knative Eventing Operator"
 failed=0
 
 # Run the postupgrade tests
