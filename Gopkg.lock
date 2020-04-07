@@ -310,6 +310,14 @@
   version = "v1.1.9"
 
 [[projects]]
+  branch = "master"
+  digest = "1:cf68a79fd02ab0f6942b9567d03d054b6568212fcc22de2a4afdefd096923749"
+  name = "github.com/kballard/go-shellquote"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "95032a82bc518f77982ea72343cc1ade730072f0"
+
+[[projects]]
   digest = "1:dd895309ca7dbb6f5ef345c76f4e1dfe23accbcdaacde852bfcdabba1f754e5b"
   name = "github.com/manifestival/client-go-client"
   packages = ["."]
@@ -1276,6 +1284,7 @@
     "system",
     "system/testing",
     "test",
+    "test/cmd",
     "test/helpers",
     "test/ingress",
     "test/logging",
@@ -1293,14 +1302,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d8858077778bca77705b26d5b5262bf33a6bfbaa701fffca1578fd7ef4c4b975"
+  digest = "1:ce8214f24f811aa582a58b2680e3380ff3fac7668a00d490fb23349a21051dcb"
   name = "knative.dev/test-infra"
   packages = [
     "scripts",
     "tools/dep-collector",
   ]
   pruneopts = "UT"
-  revision = "01c151837ed80fcf977e2adb50aeebeecab0d75e"
+  revision = "a7b18bf0c37bf1a10743fba5c1ce988b7c2e0e30"
 
 [[projects]]
   digest = "1:5fdf0517a870044f13def5f9f2dc75eb8cfb88baf7862eaf9884a06152f9391b"
