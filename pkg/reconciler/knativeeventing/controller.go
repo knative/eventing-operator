@@ -16,6 +16,7 @@ package knativeeventing
 import (
 	"context"
 	"flag"
+	"k8s.io/client-go/rest"
 	"os"
 	"path/filepath"
 
@@ -35,14 +36,17 @@ import (
 )
 
 const (
-	controllerAgentName = "knativeeventing-controller"
-	reconcilerName      = "KnativeEventing"
+	controllerAgentName       = "knativeeventing-controller"
+	reconcilerName            = "KnativeEventing"
+	ChannelBasedBrokerClass   = "ChannelBasedBroker"
+	MTChannelBasedBrokerClass = "MTChannelBasedBroker"
 )
 
 var (
-	recursive  = flag.Bool("recursive", false, "If filename is a directory, process all manifests recursively")
-	MasterURL  = flag.String("master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
-	Kubeconfig = flag.String("kubeconfig", "", "Path to a kubeconfig. Only required if out-of-cluster.")
+	recursive             = flag.Bool("recursive", false, "If filename is a directory, process all manifests recursively")
+	MasterURL             = flag.String("master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
+	Kubeconfig            = flag.String("kubeconfig", "", "Path to a kubeconfig. Only required if out-of-cluster.")
+	AvailableBrokerClases = []string{ChannelBasedBrokerClass, MTChannelBasedBrokerClass}
 )
 
 // NewController initializes the controller and is called by the generated code
@@ -58,6 +62,7 @@ func NewController(
 		Base:                  rbase.NewBase(ctx, controllerAgentName, cmw),
 		knativeEventingLister: knativeEventingInformer.Lister(),
 		eventings:             sets.String{},
+		defaultBrokerConfigs:  map[string]mf.Manifest{},
 	}
 
 	koDataDir := os.Getenv("KO_DATA_PATH")
@@ -67,14 +72,22 @@ func NewController(
 		c.Logger.Error(err, "Error building kubeconfig")
 	}
 
-	config, err := mfc.NewManifest(filepath.Join(koDataDir, "knative-eventing/"), cfg,
-		mf.UseLogger(zapr.NewLogger(c.Logger.Desugar()).WithName("manifestival")))
-	if err != nil {
+	basePath := filepath.Join(koDataDir, "knative-eventing/")
+	mfOpts := []mf.Option{mf.UseLogger(zapr.NewLogger(c.Logger.Desugar()).WithName("manifestival"))}
+
+	if c.config, err = readManifest(basePath, "eventing.yaml", cfg, mfOpts...); err != nil {
 		c.Logger.Error(err, "Error creating the Manifest for knative-eventing")
 		os.Exit(1)
 	}
+	// read manifests for broker classes and store them in a map
+	for _, brokerClass := range AvailableBrokerClases {
+		manifestFileNameForBrokerClass := "default-broker-" + brokerClass + ".yaml"
+		if c.defaultBrokerConfigs[brokerClass], err = readManifest(basePath, manifestFileNameForBrokerClass, cfg, mfOpts...); err != nil {
+			c.Logger.Error(err, "Error creating the Manifest for knative-eventing default broker config for broker class "+brokerClass)
+			os.Exit(1)
+		}
+	}
 
-	c.config = config
 	impl := controller.NewImpl(c, c.Logger, reconcilerName)
 
 	c.Logger.Info("Setting up event handlers for %s", reconcilerName)
@@ -87,4 +100,8 @@ func NewController(
 	})
 
 	return impl
+}
+
+func readManifest(basePath string, yamlFile string, cfg *rest.Config, mfOpts ...mf.Option) (mf.Manifest, error) {
+	return mfc.NewManifest(filepath.Join(basePath, yamlFile), cfg, mfOpts...)
 }

@@ -45,9 +45,10 @@ const (
 )
 
 var (
-	platform    common.Platforms
-	role        mf.Predicate = mf.Any(mf.ByKind("ClusterRole"), mf.ByKind("Role"))
-	rolebinding mf.Predicate = mf.Any(mf.ByKind("ClusterRoleBinding"), mf.ByKind("RoleBinding"))
+	platform               common.Platforms
+	role                   mf.Predicate = mf.Any(mf.ByKind("ClusterRole"), mf.ByKind("Role"))
+	rolebinding            mf.Predicate = mf.Any(mf.ByKind("ClusterRoleBinding"), mf.ByKind("RoleBinding"))
+	defaultBrokerConfigMap mf.Predicate = mf.None(mf.All(mf.ByKind("ConfigMap"), mf.ByName("config-br-defaults")))
 )
 
 // Reconciler implements controller.Reconciler for Knativeeventing resources.
@@ -56,6 +57,7 @@ type Reconciler struct {
 	// Listers index properties about resources
 	knativeEventingLister listers.KnativeEventingLister
 	config                mf.Manifest
+	defaultBrokerConfigs  map[string]mf.Manifest
 	eventings             sets.String
 }
 
@@ -119,7 +121,7 @@ func (r *Reconciler) reconcile(ctx context.Context, ke *eventingv1alpha1.Knative
 	reqLogger := r.Logger.With(zap.String("Request.Namespace", ke.Namespace)).With("Request.Name", ke.Name)
 	reqLogger.Infow("Reconciling KnativeEventing", "status", ke.Status)
 
-	stages := []func(*mf.Manifest, *eventingv1alpha1.KnativeEventing) error{
+	stages := []func([]mf.Manifest, *eventingv1alpha1.KnativeEventing) error{
 		r.ensureFinalizer,
 		r.initStatus,
 		r.install,
@@ -127,14 +129,30 @@ func (r *Reconciler) reconcile(ctx context.Context, ke *eventingv1alpha1.Knative
 		r.deleteObsoleteResources,
 	}
 
-	manifest, err := r.transform(ke)
+	manifest, err := r.transform(r.config, ke)
 	if err != nil {
 		ke.Status.MarkEventingFailed("Manifest Installation", err.Error())
 		return err
 	}
 
+	// delete the default broker config in main manifest, as we are going to apply it separately
+	manifest = manifest.Filter(defaultBrokerConfigMap)
+
+	defaultBrokerClass := ke.Spec.DefaultBrokerClass
+	if defaultBrokerClass == "" {
+		defaultBrokerClass = ChannelBasedBrokerClass
+	}
+	defaultBrokerConfig := r.defaultBrokerConfigs[defaultBrokerClass]
+	defaultBrokerConfigManifest, err := r.transform(defaultBrokerConfig, ke)
+	if err != nil {
+		ke.Status.MarkEventingFailed("Manifest Installation", err.Error())
+		return err
+	}
+
+	manifests := []mf.Manifest{manifest, defaultBrokerConfigManifest}
+
 	for _, stage := range stages {
-		if err := stage(&manifest, ke); err != nil {
+		if err := stage(manifests, ke); err != nil {
 			return err
 		}
 	}
@@ -142,7 +160,7 @@ func (r *Reconciler) reconcile(ctx context.Context, ke *eventingv1alpha1.Knative
 	return nil
 }
 
-func (r *Reconciler) initStatus(_ *mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
+func (r *Reconciler) initStatus(_ []mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
 	r.Logger.Debug("Initializing status")
 	if len(ke.Status.Conditions) == 0 {
 		ke.Status.InitializeConditions()
@@ -153,39 +171,41 @@ func (r *Reconciler) initStatus(_ *mf.Manifest, ke *eventingv1alpha1.KnativeEven
 	return nil
 }
 
-func (r *Reconciler) transform(instance *eventingv1alpha1.KnativeEventing) (mf.Manifest, error) {
+func (r *Reconciler) transform(manifest mf.Manifest, instance *eventingv1alpha1.KnativeEventing) (mf.Manifest, error) {
 	r.Logger.Debug("Transforming manifest")
 	transforms, err := platform.Transformers(r.KubeClientSet, instance, r.Logger)
 	if err != nil {
 		return mf.Manifest{}, err
 	}
-	return r.config.Transform(transforms...)
+	return manifest.Transform(transforms...)
 }
 
-func (r *Reconciler) install(manifest *mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
+func (r *Reconciler) install(manifests []mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
 	r.Logger.Debug("Installing manifest")
 	defer r.updateStatus(ke)
-	// The Operator needs a higher level of permissions if it 'bind's non-existent roles.
-	// To avoid this, we strictly order the manifest application as (Cluster)Roles, then
-	// (Cluster)RoleBindings, then the rest of the manifest.
-	if err := manifest.Filter(role).Apply(); err != nil {
-		ke.Status.MarkEventingFailed("Manifest Installation", err.Error())
-		return err
-	}
-	if err := manifest.Filter(rolebinding).Apply(); err != nil {
-		ke.Status.MarkEventingFailed("Manifest Installation", err.Error())
-		return err
-	}
-	if err := manifest.Filter(mf.None(mf.Any(role, rolebinding))).Apply(); err != nil {
-		ke.Status.MarkEventingFailed("Manifest Installation", err.Error())
-		return err
+	for _, manifest := range manifests {
+		// The Operator needs a higher level of permissions if it 'bind's non-existent roles.
+		// To avoid this, we strictly order the manifest application as (Cluster)Roles, then
+		// (Cluster)RoleBindings, then the rest of the manifest.
+		if err := manifest.Filter(role).Apply(); err != nil {
+			ke.Status.MarkEventingFailed("Manifest Installation", err.Error())
+			return err
+		}
+		if err := manifest.Filter(rolebinding).Apply(); err != nil {
+			ke.Status.MarkEventingFailed("Manifest Installation", err.Error())
+			return err
+		}
+		if err := manifest.Filter(mf.None(mf.Any(role, rolebinding))).Apply(); err != nil {
+			ke.Status.MarkEventingFailed("Manifest Installation", err.Error())
+			return err
+		}
 	}
 	ke.Status.Version = version.Version
 	ke.Status.MarkInstallationReady()
 	return nil
 }
 
-func (r *Reconciler) checkDeployments(manifest *mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
+func (r *Reconciler) checkDeployments(manifests []mf.Manifest, ke *eventingv1alpha1.KnativeEventing) error {
 	r.Logger.Debug("Checking deployments")
 	defer r.updateStatus(ke)
 	available := func(d *appsv1.Deployment) bool {
@@ -196,18 +216,20 @@ func (r *Reconciler) checkDeployments(manifest *mf.Manifest, ke *eventingv1alpha
 		}
 		return false
 	}
-	for _, u := range manifest.Filter(mf.ByKind("Deployment")).Resources() {
-		deployment, err := r.KubeClientSet.AppsV1().Deployments(u.GetNamespace()).Get(u.GetName(), metav1.GetOptions{})
-		if err != nil {
-			ke.Status.MarkEventingNotReady("Deployment check", err.Error())
-			if errors.IsNotFound(err) {
+	for _, manifest := range manifests {
+		for _, u := range manifest.Filter(mf.ByKind("Deployment")).Resources() {
+			deployment, err := r.KubeClientSet.AppsV1().Deployments(u.GetNamespace()).Get(u.GetName(), metav1.GetOptions{})
+			if err != nil {
+				ke.Status.MarkEventingNotReady("Deployment check", err.Error())
+				if errors.IsNotFound(err) {
+					return nil
+				}
+				return err
+			}
+			if !available(deployment) {
+				ke.Status.MarkEventingNotReady("Deployment check", "The deployment is not available.")
 				return nil
 			}
-			return err
-		}
-		if !available(deployment) {
-			ke.Status.MarkEventingNotReady("Deployment check", "The deployment is not available.")
-			return nil
 		}
 	}
 	ke.Status.MarkEventingReady()
@@ -230,7 +252,7 @@ func (r *Reconciler) updateStatus(desired *eventingv1alpha1.KnativeEventing) (*e
 }
 
 // ensureFinalizer attaches a "delete manifest" finalizer to the instance
-func (r *Reconciler) ensureFinalizer(manifest *mf.Manifest, instance *eventingv1alpha1.KnativeEventing) error {
+func (r *Reconciler) ensureFinalizer(_ []mf.Manifest, instance *eventingv1alpha1.KnativeEventing) error {
 	for _, finalizer := range instance.GetFinalizers() {
 		if finalizer == finalizerName {
 			return nil
@@ -258,6 +280,13 @@ func (r *Reconciler) delete(instance *eventingv1alpha1.KnativeEventing) error {
 			r.Logger.Warn(err, "Error deleting resources")
 			return err
 		}
+		// Delete default broker configs
+		for _, defaultBrokerConfig := range r.defaultBrokerConfigs {
+			if err := defaultBrokerConfig.Delete(); err != nil {
+				r.Logger.Warn(err, "Error deleting broker defaulting config resources")
+				return err
+			}
+		}
 		// Delete Roles last, as they may be useful for human operators to clean up.
 		if err := r.config.Filter(RBAC).Delete(); err != nil {
 			r.Logger.Warn(err, "Error deleting RBAC resources")
@@ -277,7 +306,9 @@ func (r *Reconciler) delete(instance *eventingv1alpha1.KnativeEventing) error {
 }
 
 // Delete obsolete resources from previous versions
-func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *eventingv1alpha1.KnativeEventing) error {
+func (r *Reconciler) deleteObsoleteResources(manifests []mf.Manifest, instance *eventingv1alpha1.KnativeEventing) error {
+	client := manifests[0].Client
+
 	resource := &unstructured.Unstructured{}
 	resource.SetNamespace(instance.GetNamespace())
 
@@ -288,28 +319,28 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 	resource.SetAPIVersion("v1")
 	resource.SetKind("ServiceAccount")
 	resource.SetName("eventing-source-controller")
-	if err := manifest.Client.Delete(resource); err != nil {
+	if err := client.Delete(resource); err != nil {
 		return err
 	}
 
 	resource.SetAPIVersion("rbac.authorization.k8s.io/v1")
 	resource.SetKind("ClusterRole")
 	resource.SetName("knative-eventing-source-controller")
-	if err := manifest.Client.Delete(resource); err != nil {
+	if err := client.Delete(resource); err != nil {
 		return err
 	}
 
 	resource.SetAPIVersion("rbac.authorization.k8s.io/v1")
 	resource.SetKind("ClusterRoleBinding")
 	resource.SetName("eventing-source-controller")
-	if err := manifest.Client.Delete(resource); err != nil {
+	if err := client.Delete(resource); err != nil {
 		return err
 	}
 
 	resource.SetAPIVersion("rbac.authorization.k8s.io/v1")
 	resource.SetKind("ClusterRoleBinding")
 	resource.SetName("eventing-source-controller-resolver")
-	if err := manifest.Client.Delete(resource); err != nil {
+	if err := client.Delete(resource); err != nil {
 		return err
 	}
 
@@ -317,7 +348,7 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 	resource.SetAPIVersion("admissionregistration.k8s.io/v1beta1")
 	resource.SetKind("MutatingWebhookConfiguration")
 	resource.SetName("legacysinkbindings.webhook.sources.knative.dev")
-	if err := manifest.Client.Delete(resource); err != nil {
+	if err := client.Delete(resource); err != nil {
 		return err
 	}
 
@@ -325,7 +356,7 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 	resource.SetAPIVersion("rbac.authorization.k8s.io/v1")
 	resource.SetKind("ClusterRole")
 	resource.SetName("knative-eventing-sources-namespaced-admin")
-	if err := manifest.Client.Delete(resource); err != nil {
+	if err := client.Delete(resource); err != nil {
 		return err
 	}
 
@@ -333,7 +364,7 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 	resource.SetAPIVersion("apiextensions.k8s.io/v1beta1")
 	resource.SetKind("CustomResourceDefinition")
 	resource.SetName("apiserversources.sources.eventing.knative.dev")
-	if err := manifest.Client.Delete(resource); err != nil {
+	if err := client.Delete(resource); err != nil {
 		return err
 	}
 
@@ -341,7 +372,7 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 	resource.SetAPIVersion("apiextensions.k8s.io/v1beta1")
 	resource.SetKind("CustomResourceDefinition")
 	resource.SetName("containersources.sources.eventing.knative.dev")
-	if err := manifest.Client.Delete(resource); err != nil {
+	if err := client.Delete(resource); err != nil {
 		return err
 	}
 
@@ -349,7 +380,7 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 	resource.SetAPIVersion("apiextensions.k8s.io/v1beta1")
 	resource.SetKind("CustomResourceDefinition")
 	resource.SetName("cronjobsources.sources.eventing.knative.dev")
-	if err := manifest.Client.Delete(resource); err != nil {
+	if err := client.Delete(resource); err != nil {
 		return err
 	}
 
@@ -357,7 +388,7 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 	resource.SetAPIVersion("apiextensions.k8s.io/v1beta1")
 	resource.SetKind("CustomResourceDefinition")
 	resource.SetName("sinkbindings.sources.eventing.knative.dev")
-	if err := manifest.Client.Delete(resource); err != nil {
+	if err := client.Delete(resource); err != nil {
 		return err
 	}
 
@@ -365,7 +396,7 @@ func (r *Reconciler) deleteObsoleteResources(manifest *mf.Manifest, instance *ev
 	resource.SetAPIVersion("apps/v1")
 	resource.SetKind("deployment")
 	resource.SetName("sources-controller")
-	if err := manifest.Client.Delete(resource); err != nil {
+	if err := client.Delete(resource); err != nil {
 		return err
 	}
 	return nil
