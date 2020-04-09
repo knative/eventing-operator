@@ -17,12 +17,14 @@ limitations under the License.
 package common
 
 import (
-	"gopkg.in/yaml.v2"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"testing"
 
+	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+
 	"k8s.io/client-go/kubernetes/scheme"
 
 	eventingv1alpha1 "knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
@@ -142,10 +144,10 @@ func makeConfigMap(t *testing.T, name string, data map[string]map[string]string)
 		t.Fatal("Unable to marshal test data. Possible implementation problem.", "data", data)
 	}
 	return corev1.ConfigMap{
-		TypeMeta: v1.TypeMeta{
+		TypeMeta: metav1.TypeMeta{
 			Kind: "ConfigMap",
 		},
-		ObjectMeta: v1.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
 		},
 		Data: map[string]string{
