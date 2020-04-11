@@ -140,6 +140,14 @@
   version = "v4.6.0"
 
 [[projects]]
+  digest = "1:81466b4218bf6adddac2572a30ac733a9255919bc2f470b4827a317bd4ee1756"
+  name = "github.com/ghodss/yaml"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:b49dd34bdf52d28b69e41181bed939bdf48e1152ef54d21db643e3c50b3b33c0"
   name = "github.com/go-logr/logr"
   packages = [
@@ -1241,6 +1249,17 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:e31254a054f9b731185446d8a91445c2b969d24577df0d578f7c770ee5308928"
+  name = "knative.dev/eventing"
+  packages = [
+    "pkg/apis/config",
+    "pkg/apis/eventing",
+  ]
+  pruneopts = "NUT"
+  revision = "1e68f1cfe5bb4f8c67aca7b09b36b973cde278dc"
+
+[[projects]]
+  branch = "master"
   digest = "1:848ae8fad4b88bbe3e0944f2a68052e14c4e1bb345d7b32f9d0a0ffdc2c90b46"
   name = "knative.dev/pkg"
   packages = [
@@ -1316,6 +1335,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/ghodss/yaml",
     "github.com/go-logr/zapr",
     "github.com/google/go-cmp/cmp",
     "github.com/google/go-cmp/cmp/cmpopts",
@@ -1323,6 +1343,7 @@
     "github.com/manifestival/manifestival",
     "github.com/pkg/errors",
     "go.uber.org/zap",
+    "gopkg.in/yaml.v2",
     "k8s.io/api/apps/v1",
     "k8s.io/api/core/v1",
     "k8s.io/apimachinery/pkg/api/equality",
@@ -1358,6 +1379,8 @@
     "k8s.io/code-generator/cmd/defaulter-gen",
     "k8s.io/code-generator/cmd/informer-gen",
     "k8s.io/code-generator/cmd/lister-gen",
+    "knative.dev/eventing/pkg/apis/config",
+    "knative.dev/eventing/pkg/apis/eventing",
     "knative.dev/pkg/apis",
     "knative.dev/pkg/apis/duck/v1beta1",
     "knative.dev/pkg/apis/testing",

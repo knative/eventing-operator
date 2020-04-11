@@ -40,6 +40,10 @@ required = [
   branch = "master"
 
 [[override]]
+  name = "knative.dev/eventing"
+  branch = "master"
+
+[[override]]
   name = "k8s.io/apimachinery"
   version = "kubernetes-1.16.4"
 

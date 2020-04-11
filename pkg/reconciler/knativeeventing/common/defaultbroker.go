@@ -17,35 +17,24 @@ limitations under the License.
 package common
 
 import (
+	"encoding/json"
+	"github.com/ghodss/yaml"
 	mf "github.com/manifestival/manifestival"
 	"go.uber.org/zap"
-	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/kubernetes/scheme"
+	eventingconfig "knative.dev/eventing/pkg/apis/config"
+	"knative.dev/eventing/pkg/apis/eventing"
 
 	eventingv1alpha1 "knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 )
 
-const (
-	channelBasedBrokerClass = "ChannelBasedBroker"
-)
-
-var defaultBrokerConfigMapData = map[string]map[string]string{
-	"clusterDefault": {
-		"brokerClass": channelBasedBrokerClass,
-		"apiVersion":  "v1",
-		"kind":        "ConfigMap",
-		"name":        "config-br-default-channel",
-		"namespace":   "knative-eventing",
-	},
-}
-
 // DefaultBrokerConfigMapTransform updates the default broker configMap with the value defined in the spec
 func DefaultBrokerConfigMapTransform(instance *eventingv1alpha1.KnativeEventing, log *zap.SugaredLogger) mf.Transformer {
 	return func(u *unstructured.Unstructured) error {
-		if u.GetKind() == "ConfigMap" && u.GetName() == "config-br-defaults" {
+		if u.GetKind() == "ConfigMap" && u.GetName() == eventingconfig.DefaultsConfigName {
 			var configMap = &corev1.ConfigMap{}
 			err := scheme.Scheme.Convert(u, configMap, nil)
 			if err != nil {
@@ -53,19 +42,23 @@ func DefaultBrokerConfigMapTransform(instance *eventingv1alpha1.KnativeEventing,
 				return err
 			}
 
-			defaultBrokerClass := instance.Spec.DefaultBrokerClass
-			if defaultBrokerClass == "" {
-				defaultBrokerClass = channelBasedBrokerClass
-			}
-
-			defaultBrokerConfigMapData["clusterDefault"]["brokerClass"] = defaultBrokerClass
-			out, err := yaml.Marshal(&defaultBrokerConfigMapData)
-
+			defaults, err := eventingconfig.NewDefaultsConfigFromConfigMap(configMap)
 			if err != nil {
+				log.Error(err, "Error parsing default broker ConfigMap", "unstructured", u, "configMap", configMap)
 				return err
 			}
 
-			configMap.Data["default-br-config"] = string(out)
+			defaultBrokerClass := instance.Spec.DefaultBrokerClass
+			if defaultBrokerClass == "" {
+				defaultBrokerClass = eventing.ChannelBrokerClassValue
+			}
+			defaults.ClusterDefault.BrokerClass = defaultBrokerClass
+
+			err = writeDefaultsToConfigMap(defaults, configMap, log)
+			if err != nil {
+				log.Error(err, "Error converting Broker defaults to default broker ConfigMap", "defaults", defaults, "configMap", configMap)
+				return err
+			}
 
 			err = scheme.Scheme.Convert(configMap, u, nil)
 			if err != nil {
@@ -74,8 +67,25 @@ func DefaultBrokerConfigMapTransform(instance *eventingv1alpha1.KnativeEventing,
 			// The zero-value timestamp defaulted by the conversion causes
 			// superfluous updates
 			u.SetCreationTimestamp(metav1.Time{})
-			log.Debugw("Finished updating config-br-defaults configMap", "name", u.GetName(), "unstructured", u.Object)
+			log.Debugw("Finished updating Broker defaults configMap", "name", u.GetName(), "unstructured", u.Object)
 		}
 		return nil
 	}
+}
+
+func writeDefaultsToConfigMap(defaults *eventingconfig.Defaults, configMap *corev1.ConfigMap, logger *zap.SugaredLogger) error {
+	jsonBytes, err := json.Marshal(defaults)
+	if err != nil {
+		log.Error("Defaults could not be converted to JSON", "defaults", defaults)
+		return err
+	}
+
+	yamlBytes, err := yaml.JSONToYAML(jsonBytes)
+	if err != nil {
+		log.Error("Defaults could not be converted to YAML", "defaults", defaults)
+		return err
+	}
+
+	configMap.Data[eventingconfig.BrokerDefaultsKey] = string(yamlBytes)
+	return nil
 }
