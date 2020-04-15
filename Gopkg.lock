@@ -1248,7 +1248,7 @@
   revision = "861946025e3491219eaccb1bf693e23df70c2fa8"
 
 [[projects]]
-  branch = "master"
+  branch = "release-0.14"
   digest = "1:e31254a054f9b731185446d8a91445c2b969d24577df0d578f7c770ee5308928"
   name = "knative.dev/eventing"
   packages = [
@@ -1256,11 +1256,11 @@
     "pkg/apis/eventing",
   ]
   pruneopts = "NUT"
-  revision = "1e68f1cfe5bb4f8c67aca7b09b36b973cde278dc"
+  revision = "02bc51668a0c7d2d8cbb56823c5aecbeec46253d"
 
 [[projects]]
-  branch = "master"
-  digest = "1:848ae8fad4b88bbe3e0944f2a68052e14c4e1bb345d7b32f9d0a0ffdc2c90b46"
+  branch = "release-0.14"
+  digest = "1:f806eb7e5629d594362dc18905d092888b1d56fbfe026a597d25b86e846f2d53"
   name = "knative.dev/pkg"
   packages = [
     "apis",
@@ -1310,7 +1310,7 @@
     "webhook/certificates/resources",
   ]
   pruneopts = "T"
-  revision = "4e57475bc87c1aba3e7fcc0207b593dc7186eb83"
+  revision = "2a1db869228ceaca9df34790b49cdf4893a5d39d"
 
 [[projects]]
   branch = "master"
@@ -1321,7 +1321,7 @@
     "tools/dep-collector",
   ]
   pruneopts = "UT"
-  revision = "74b24ca44778c3a69ecc193250cdddb5d0e64b88"
+  revision = "9cf64fb1b912898b2934e0e963bf3c61b96d7a2c"
 
 [[projects]]
   digest = "1:5fdf0517a870044f13def5f9f2dc75eb8cfb88baf7862eaf9884a06152f9391b"

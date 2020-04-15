@@ -61,19 +61,19 @@ func TestTransformers(t *testing.T) {
 
 	results, err := platform.Transformers(kubeclient.Get(ctx), ke, logger)
 	assertEqual(t, err, nil)
-	// By default, there are 3 functions.
+	// By default, there are 4 functions.
 	assertEqual(t, len(results), 4)
 
 	platform = append(platform, fakePlatform)
 	results, err = platform.Transformers(kubeclient.Get(ctx), ke, logger)
 	assertEqual(t, err, nil)
-	// There is one function in existing platform, so there will be 4 functions in total.
+	// There is one function in existing platform, so there will be 5 functions in total.
 	assertEqual(t, len(results), 5)
 
 	platformErr = append(platformErr, fakePlatformErr)
 	results, err = platformErr.Transformers(kubeclient.Get(ctx), ke, logger)
 	assertEqual(t, err.Error(), "Test Error")
-	// By default, there are 3 functions.
+	// By default, there are 4 functions.
 	assertEqual(t, len(results), 4)
 }
 
