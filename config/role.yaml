@@ -143,6 +143,7 @@ rules:
   verbs:
   - create
   - delete
+  - update
   - get
   - list
 - apiGroups:
