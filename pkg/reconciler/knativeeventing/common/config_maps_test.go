@@ -33,10 +33,10 @@ type configMapData struct {
 }
 
 type updateConfigMapTest struct {
-	name       string
-	config     configMapData
-	configMap  corev1.ConfigMap
-	expected   corev1.ConfigMap
+	name      string
+	config    configMapData
+	configMap corev1.ConfigMap
+	expected  corev1.ConfigMap
 }
 
 func makeconfigMapData(name string, data map[string]string) configMapData {
