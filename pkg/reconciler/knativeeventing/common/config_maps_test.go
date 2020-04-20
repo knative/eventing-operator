@@ -28,8 +28,8 @@ import (
 )
 
 type configMapData struct {
-	name     string
-	data     map[string]string
+	name string
+	data map[string]string
 }
 
 type updateConfigMapTest struct {
