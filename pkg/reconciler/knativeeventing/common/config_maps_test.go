@@ -67,7 +67,7 @@ func createConfigMapTests(t *testing.T) []updateConfigMapTest {
 			name: "change-config-logging-empty-data",
 			config: makeconfigMapData("logging", map[string]string{
 				"loglevel.controller": "debug",
-				"loglevel.webhook":  "debug",
+				"loglevel.webhook":    "debug",
 			}),
 			configMap: createConfigMap("config-logging", nil),
 			expected: createConfigMap("config-logging", map[string]string{
