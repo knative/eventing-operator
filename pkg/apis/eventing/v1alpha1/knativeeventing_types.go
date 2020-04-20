@@ -72,7 +72,7 @@ type KnativeEventingSpec struct {
 	// The default broker type to use for the brokers Knative creates.
 	// If no value is provided, ChannelBasedBroker will be used.
 	// +optional
-	DefaultBrokerClass string `json:"defaultBrokerClass,omitempty"`
+	DefaultBrokerClass string `json:"default-broker-class,omitempty"`
 }
 
 // KnativeEventingStatus defines the observed state of KnativeEventing
