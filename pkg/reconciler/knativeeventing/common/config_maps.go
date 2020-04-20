@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package common
 
 import (
@@ -22,7 +23,7 @@ import (
 	servingv1alpha1 "knative.dev/eventing-operator/pkg/apis/eventing/v1alpha1"
 )
 
-// ConfigMapTransform updates the ConfigMap with the values speficied in operator CR
+// ConfigMapTransform updates the ConfigMap with the values specified in operator CR
 func ConfigMapTransform(instance *servingv1alpha1.KnativeEventing, log *zap.SugaredLogger) mf.Transformer {
 	return func(u *unstructured.Unstructured) error {
 		// Let any config in instance override everything else
