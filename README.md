@@ -49,8 +49,8 @@ EOF
 
 1. Select a Knative Broker
 
-By default the `ChannelBasedBroker` broker will be used, but you can change that by providing
-a different `defaultBrokerClass` in the custom resource, like:
+By default the `ChannelBasedBroker` broker will be used, but you can change that
+by providing a different `defaultBrokerClass` in the custom resource, like:
 
 ```yaml
 apiVersion: operator.knative.dev/v1alpha1
