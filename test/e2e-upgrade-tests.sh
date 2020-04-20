@@ -29,7 +29,7 @@
 source $(dirname $0)/../vendor/knative.dev/test-infra/scripts/e2e-tests.sh
 
 # Latest eventing operator release.
-readonly LATEST_EVENTING_OPERATOR_RELEASE_VERSION=$(git tag | sort -V | tail -1)
+readonly LATEST_EVENTING_OPERATOR_RELEASE_VERSION="v0.13.3"
 readonly LATEST_EVENTING_RELEASE_VERSION="v0.13.4"
 
 OPERATOR_DIR=$(dirname $0)/..
