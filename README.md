@@ -50,7 +50,7 @@ EOF
 1. Select a Knative Broker
 
 By default the `ChannelBasedBroker` broker will be used, but you can change that
-by providing a different `defaultBrokerClass` in the custom resource, like:
+by providing a different `default-broker-class` in the custom resource, like:
 
 ```yaml
 apiVersion: operator.knative.dev/v1alpha1
@@ -59,7 +59,7 @@ metadata:
   name: knative-eventing
   namespace: knative-eventing
 spec:
-  defaultBrokerClass: MTChannelBasedBroker
+  default-broker-class: MTChannelBasedBroker
 ```
 
 Please refer to [Building the Operator Image](#building-the-operator-image) to
