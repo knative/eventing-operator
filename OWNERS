@@ -1,9 +1,18 @@
-# The OWNERS file is used by prow to automatically merge approved PRs.
-
 approvers:
-- Cynocracy
+- jcrossley3
+- markusthoemmes
+- mgencur
+- vdemeester
+- warrenvw
 - matzew
-- n3wscott
 - aliok
-# Operations WG leads
-- houshengbo
+- lberk
+reviewers:
+- jcrossley3
+- markusthoemmes
+- mgencur
+- vdemeester
+- warrenvw
+- matzew
+- aliok
+- lberk

@@ -604,7 +604,7 @@ spec:
       containers:
       - name: eventing-controller
         terminationMessagePolicy: FallbackToLogsOnError
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/controller@sha256:a3d2615e670221278f4a73911de3573ff44f3ffdbbe94f496e0dc6253f878371
+        image: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-controller
         resources:
           requests:
             cpu: 100m
@@ -624,10 +624,10 @@ spec:
           name: PING_IMAGE
           value: gcr.io/knative-releases/knative.dev/eventing/cmd/ping/adapter@sha256:034475c5983b63e38efad77b47f29d0d09e7a01bee861c4474255ed1d85bb48a
         - name: JOB_RUNNER_IMAGE
-          value: gcr.io/knative-releases/knative.dev/eventing/cmd/ping/jobrunner@sha256:d0add2dde81ddb0c9e436a19f224daf876915f6fc73ac5deebbe221c15de392a
+          value: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-jobrunner
         - # APIServerSource
           name: APISERVER_RA_IMAGE
-          value: gcr.io/knative-releases/knative.dev/eventing/cmd/apiserver_receive_adapter@sha256:1c9c81406aea892967b1f6d59ff1327249676d48a824eaf9bc9a9d58cd10a772
+          value: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-apiserver-receive-adapter
         securityContext:
           allowPrivilegeEscalation: false
         ports:
@@ -674,7 +674,7 @@ spec:
         terminationMessagePolicy: FallbackToLogsOnError
         # This is the Go import path for the binary that is containerized
         # and substituted here.
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/webhook@sha256:29a1745f6171e98e1823753bf5dd60dd1a5511f564bf760d6099a79faf1b0637
+        image: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-webhook
         resources:
           requests:
             # taken from serving.
@@ -683,7 +683,7 @@ spec:
           limits:
             # taken from serving.
             cpu: 200m
-            memory: 200Mi
+            memory: 1024Mi
         env:
         - name: SYSTEM_NAMESPACE
           valueFrom:
@@ -2957,7 +2957,7 @@ spec:
       containers:
       - name: eventing-controller
         terminationMessagePolicy: FallbackToLogsOnError
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/channel_broker@sha256:9545f1af4ad301484a76e3ed572b463c6cf6ccdf8177ec1246a23df85ddb431b
+        image: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-channel-broker
         resources:
           requests:
             cpu: 100m
@@ -2975,11 +2975,11 @@ spec:
           value: knative.dev/eventing
         - # Broker
           name: BROKER_INGRESS_IMAGE
-          value: gcr.io/knative-releases/knative.dev/eventing/cmd/broker/ingress@sha256:b21bdb9f9a452f4f7fdb5e31602c9cf5f46f6367cf98fe9d1f85425fc46ec040
+          value: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-ingress
         - name: BROKER_INGRESS_SERVICE_ACCOUNT
           value: eventing-broker-ingress
         - name: BROKER_FILTER_IMAGE
-          value: gcr.io/knative-releases/knative.dev/eventing/cmd/broker/filter@sha256:734d62030f539e1dfd2ea48faa0452fd61a1883279da7b9ad60885241a3e4fef
+          value: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-filter
         - name: BROKER_FILTER_SERVICE_ACCOUNT
           value: eventing-broker-filter
         - name: BROKER_IMAGE_PULL_SECRET_NAME
@@ -3029,7 +3029,7 @@ spec:
       containers:
       - name: eventing-controller
         terminationMessagePolicy: FallbackToLogsOnError
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/channel_broker@sha256:9545f1af4ad301484a76e3ed572b463c6cf6ccdf8177ec1246a23df85ddb431b
+        image: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-channel-broker
         resources:
           requests:
             cpu: 100m
@@ -3047,11 +3047,11 @@ spec:
           value: knative.dev/eventing
         - # Broker
           name: BROKER_INGRESS_IMAGE
-          value: gcr.io/knative-releases/knative.dev/eventing/cmd/broker/ingress@sha256:b21bdb9f9a452f4f7fdb5e31602c9cf5f46f6367cf98fe9d1f85425fc46ec040
+          value: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-ingress
         - name: BROKER_INGRESS_SERVICE_ACCOUNT
           value: eventing-broker-ingress
         - name: BROKER_FILTER_IMAGE
-          value: gcr.io/knative-releases/knative.dev/eventing/cmd/broker/filter@sha256:734d62030f539e1dfd2ea48faa0452fd61a1883279da7b9ad60885241a3e4fef
+          value: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-filter
         - name: BROKER_FILTER_SERVICE_ACCOUNT
           value: eventing-broker-filter
         - name: BROKER_IMAGE_PULL_SECRET_NAME
@@ -3468,7 +3468,7 @@ spec:
       containers:
       - name: filter
         terminationMessagePolicy: FallbackToLogsOnError
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/mtbroker/filter@sha256:ef88a5da1231048720553a6631b2f4b66a8e4cfb44b105c62fa6127b623c394e
+        image: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-mtbroker-filter
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -3576,7 +3576,7 @@ spec:
       containers:
       - name: ingress
         terminationMessagePolicy: FallbackToLogsOnError
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/mtbroker/ingress@sha256:79c71f7f5fe9c4c73c627a43841efe079f97c21630e9a18bcf389fc124ee41a7
+        image: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-mtbroker-ingress
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -3685,7 +3685,7 @@ spec:
       containers:
       - name: eventing-controller
         terminationMessagePolicy: FallbackToLogsOnError
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/mtchannel_broker@sha256:3907ef032d0787a3381b8881caed5696a533d948e1c539fc5aed1466e802af48
+        image: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-mtchannel-broker
         resources:
           requests:
             cpu: 100m
@@ -3752,7 +3752,7 @@ spec:
       containers:
       - name: filter
         terminationMessagePolicy: FallbackToLogsOnError
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/mtbroker/filter@sha256:ef88a5da1231048720553a6631b2f4b66a8e4cfb44b105c62fa6127b623c394e
+        image: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-mtbroker-filter
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -3860,7 +3860,7 @@ spec:
       containers:
       - name: ingress
         terminationMessagePolicy: FallbackToLogsOnError
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/mtbroker/ingress@sha256:79c71f7f5fe9c4c73c627a43841efe079f97c21630e9a18bcf389fc124ee41a7
+        image: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-mtbroker-ingress
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -3969,7 +3969,7 @@ spec:
       containers:
       - name: eventing-controller
         terminationMessagePolicy: FallbackToLogsOnError
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/mtchannel_broker@sha256:3907ef032d0787a3381b8881caed5696a533d948e1c539fc5aed1466e802af48
+        image: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-mtchannel-broker
         resources:
           requests:
             cpu: 100m
@@ -4833,7 +4833,7 @@ spec:
       serviceAccountName: imc-controller
       containers:
       - name: controller
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/in_memory/channel_controller@sha256:7ee5a2c40ee723d6c539393eff5de8d3db567b7f974ce7a56058e344e6df2496
+        image: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-channel-controller
         env:
         - name: CONFIG_LOGGING_NAME
           value: config-logging
@@ -4846,7 +4846,7 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: DISPATCHER_IMAGE
-          value: gcr.io/knative-releases/knative.dev/eventing/cmd/in_memory/channel_dispatcher@sha256:8c7cd35f84a3eae51e914fd227fe572dc8f8f8f8aac95e867bf6fcce0de6563d
+          value: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-channel-dispatcher
         securityContext:
           allowPrivilegeEscalation: false
         ports:
@@ -4890,7 +4890,7 @@ spec:
       serviceAccountName: imc-dispatcher
       containers:
       - name: dispatcher
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/in_memory/channel_dispatcher@sha256:8c7cd35f84a3eae51e914fd227fe572dc8f8f8f8aac95e867bf6fcce0de6563d
+        image: registry.svc.ci.openshift.org/openshift/knative-v0.14.0:knative-eventing-channel-dispatcher
         env:
         - name: CONFIG_LOGGING_NAME
           value: config-logging
